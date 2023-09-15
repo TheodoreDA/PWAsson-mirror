@@ -8,6 +8,7 @@ import NewPost from "./pages/NewPost";
 import Profile from "./pages/Profile";
 import axios from "axios";
 import { Route, Routes } from "react-router-dom";
+import logo from "./logo.svg";
 
 function sendSubscriptionToServer(subscription) {
   console.log(subscription);
