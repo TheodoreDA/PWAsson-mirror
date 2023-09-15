@@ -9,7 +9,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: 'http://localhost:3000',
-    methods: 'GET, PATCH, POST, DELETE',
+    methods: 'GET, PUT, POST, DELETE',
   });
 
   app.useGlobalPipes(
