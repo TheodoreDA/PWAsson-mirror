@@ -35,7 +35,5 @@ import { AppService } from './app.service';
     AdminModule,
     NotificationModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
