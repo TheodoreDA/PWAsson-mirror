@@ -29,9 +29,9 @@ export class UserController {
     return await this.userService.findAll();
   }
 
-  @Get(':userId')
-  async findOne(@Param('userId') userId: string) {
-    return await this.userService.findOne(userId);
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return await this.userService.findOne(+id);
   }
 
   @UseInterceptors(AccessTokenInterceptor)
