@@ -10,6 +10,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { NotificationModule } from './notification/notification.module';
 import { MessageModule } from './message/message.module';
 import { NotificationModule } from './notification/notification.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -34,5 +36,7 @@ import { NotificationModule } from './notification/notification.module';
     AdminModule,
     NotificationModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
