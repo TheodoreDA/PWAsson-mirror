@@ -13,15 +13,15 @@ export class UserService {
     return [new User()];
   }
 
-  async findOne(id: number): Promise<User> {
+  async findOne(userId: string): Promise<User> {
     return new User();
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(userId: string, updateUserDto: UpdateUserDto): Promise<User> {
     return new User();
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(userId: string): Promise<void> {
     return;
   }
 }
