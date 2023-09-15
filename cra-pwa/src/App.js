@@ -1,6 +1,7 @@
 import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
+import Auth from "./Auth";
 import axios from "axios";
 import { Route, Routes } from "react-router-dom";
 
@@ -17,7 +18,7 @@ function App() {
     <Routes>
  
       <Route path="/" element={<div> <p>home</p> </div>} />
-      <Route path="register" element={<div> <p>register</p></div>} />
+      <Route path="/auth" element={<Auth />} />
       <Route
         path="/test"
         element={
