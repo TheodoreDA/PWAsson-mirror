@@ -1,0 +1,126 @@
+.Feed {
+    background-color: #282c34;
+    min-height: 100vh;
+    color: white;
+    overflow-x: hidden;
+}
+
+.Feed .header {
+    display: flex;
+    justify-content: space-between;
+    position: fixed;
+    background-color: inherit;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    height: 10vh;
+    border-bottom: 1px solid lightgray;
+
+    & .icon {
+        color: lightgray;
+        height: 50px;
+        width: 50px;
+    }
+
+    & h1 {
+        align-self: center;
+    }
+
+    & .username {
+        font-size: larger;
+        text-decoration: underline;
+        height: fit-content;
+    }
+}
+
+.Feed .body {
+    display: flex;
+    flex-direction: column;
+    margin: calc(10vh + 2rem + 1px) 30vw 0 30vw;
+
+    & .new-post {
+        position: fixed;
+        height: 3rem;
+        width: 100%;
+        background-color: #282c34;
+        display: flex;
+
+        & div {
+            display: flex;
+            gap: 0.5em;
+            align-items: center;
+            width: fit-content;
+            align-self: center;
+        }
+
+        & div svg {
+            height: 30px;
+            width: 30px;
+        }
+
+        & div h3 {
+            margin: 0;
+        }
+    }
+}
+
+.Feed .body ul {
+    padding: 0;
+    margin-top: 3rem;
+    gap: 7px;
+    display: flex;
+    flex-direction: column;
+}
+
+.Feed .body li {
+    list-style: none;
+    border-left: 3px solid #1A1C21;
+    padding: 0.5rem 2rem;
+    margin: 0;
+
+    &:hover {
+        background-color:rgba(255, 255, 255, 0.08);
+    }
+
+    & p:first-child {
+        margin-bottom: 4px;
+        margin-top: 0;
+    }
+
+    & p:nth-child(2) {
+        margin-top: 0;
+    }
+}
+
+.Feed .body li img {
+    max-height: 30vh;
+    border: 1px solid #FFF;
+    margin-bottom: 0.5rem;
+    max-width: 100%;
+}
+
+.Feed .body li .time {
+    font-size: small;
+    color: #D1D1D1;
+}
+
+.Feed .body li .social {
+    display: flex;
+    gap: 1em;
+
+    & div {
+        display: flex;
+        gap: 0.5em;
+        align-items: center;
+        margin: 0;
+
+        & svg {
+            margin: 0;
+        }
+    }
+}
+
+.cursor-pointer:hover {
+    cursor: pointer;
+}

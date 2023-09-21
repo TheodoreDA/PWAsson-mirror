@@ -1,7 +1,7 @@
 import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
-import Auth from "./Auth";
+import Auth from "./pages/Auth";
+import Feed from "./pages/Feed";
 import axios from "axios";
 import { Route, Routes } from "react-router-dom";
 
@@ -19,6 +19,7 @@ function App() {
  
       <Route path="/" element={<div> <p>home</p> </div>} />
       <Route path="/auth" element={<Auth />} />
+      <Route path="/feed" element={<Feed />} />
       <Route
         path="/test"
         element={

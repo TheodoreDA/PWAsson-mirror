@@ -38,13 +38,13 @@
     cursor: pointer;
 }
 
-.Auth a {
+.Auth .redirect {
     margin-top: 5px;
     display: flex;
     font-size: 0.9em;
-}
 
-.Auth a:hover {
-    cursor: pointer;
+    &:hover {
+        cursor: pointer;
     text-decoration: underline;
+    }
 }
