@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import './Auth.css';
 
 function Login({ goToRegistration }) {
@@ -20,7 +20,7 @@ function Login({ goToRegistration }) {
                 Mot de passe: <br/><input type="password" name="password" placeholder="Mot de passe"/>
                 <button type="submit">Se connecter</button>
             </form>
-            <a onClick={goToRegistration}>Pas encore de compte ?</a>
+            <div className="redirect" onClick={goToRegistration}>Pas encore de compte ?</div>
         </div>
     );
 }
@@ -44,13 +44,13 @@ function Register({ goToLogin }) {
                 Mot de passe: <br/><input type="password" name="password" placeholder="Mot de passe"/>
                 <button type="submit">S'inscrire</button>
             </form>
-            <a onClick={goToLogin}>Déjà un compte ?</a>
+            <div className="redirect" onClick={goToLogin}>Déjà un compte ?</div>
         </div>
     );
 }
 
 function Auth() {
-    const [isRegistered, setIsRegistered] = React.useState(true);
+    const [isRegistered, setIsRegistered] = useState(true);
 
     let updateState = (() => setIsRegistered(prevIsRegistered => !prevIsRegistered));
     return (
