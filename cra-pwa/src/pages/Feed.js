@@ -1,6 +1,6 @@
 import { IoIosChatbubbles } from "react-icons/io";
 import { MdOutlineAddBox } from "react-icons/md";
-import { BiSolidCommentAdd } from "react-icons/bi";
+import { BiSolidCommentDetail } from "react-icons/bi";
 import { FaHeart } from "react-icons/fa";
 import './Feed.css';
 
@@ -11,7 +11,7 @@ function ListItem(props) {
         <p>{ props.post.title }</p>
         <img src={props.post.img} alt={ props.post.title }/>
         <div className="social">
-            <div><BiSolidCommentAdd/> { props.post.commentsNbr }</div>
+            <div><BiSolidCommentDetail/> { props.post.commentsNbr }</div>
             <div><FaHeart/> { props.post.likesNbr }</div>
         </div>
     </li>;
