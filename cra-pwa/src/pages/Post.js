@@ -21,12 +21,12 @@ function Post() {
     ];
     const post = { id: 1, user: "Ashmoore", title: "Regardez ma chèvre, elle est trop belle", time: "il y a 1 heure", img: "https://encrypted-tbn1.gstatic.com/licensed-image?q=tbn:ANd9GcQ_roUCfAO8PBWPLvOM-DrYsUboxcf3tgMobBtqKqviYGRIiwpy0AW5BNBfDOe4JbKcjMFT8zsgA5bQcFU", commentsNbr: comments.length, likesNbr: 1000 };
     const user = "Mr Poulpe";
-    const commentsList = comments.map((comment) => <Comment key={post.id} comment={comment}/>);
+    const commentsList = comments.map((comment, index) => <Comment key={ "comment-"+index } comment={comment}/>);
 
     return (
         <div className="Post">
             <div className="header">
-                <div><Link to="/feed"><IoMdArrowBack className="icon"/>Retour</Link></div>
+                <div><Link to="/feed" className="return-cursor"><IoMdArrowBack/>Retour</Link></div>
                 <h1>{ post.title }</h1>
                 <div className="username cursor-pointer">{ user }</div>
             </div>

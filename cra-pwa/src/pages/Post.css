@@ -22,20 +22,6 @@
         flex: 1;
         align-items: flex-end;
         justify-content: center;
-
-        & a {
-            align-items: center;
-            text-decoration: none;
-            color: white;
-            display: flex;
-            flex-direction: column;
-        }
-
-        & .icon {
-            color: lightgray;
-            height: 30px;
-            width: 30px;
-        }
     }
 
     & h1 {
@@ -46,9 +32,6 @@
 
     & .username {
         flex: 1;
-        font-size: larger;
-        text-decoration: underline;
-        height: fit-content;
         text-align: end;
     }
 }
@@ -124,10 +107,6 @@
     }
 }
 
-.cursor-pointer:hover {
-    cursor: pointer;
-}
-
 .time {
     font-size: small;
     color: #D1D1D1;
@@ -153,4 +132,28 @@
         height: 20px;
         width: 20px;
     }
+}
+
+.cursor-pointer:hover {
+    cursor: pointer;
+}
+
+.return-cursor {
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    display: flex;
+    flex-direction: column;
+
+    & svg {
+        color: lightgray;
+        height: 30px;
+        width: 30px;
+    }
+}
+
+.username {
+    font-size: larger;
+    text-decoration: underline;
+    height: fit-content;
 }

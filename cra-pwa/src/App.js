@@ -3,6 +3,8 @@ import "./App.css";
 import Auth from "./pages/Auth";
 import Feed from "./pages/Feed";
 import Post from "./pages/Post";
+import Messages from "./pages/Messages";
+import NewPost from "./pages/NewPost";
 import axios from "axios";
 import { Route, Routes } from "react-router-dom";
 
@@ -22,6 +24,8 @@ function App() {
       <Route path="/auth" element={<Auth />} />
       <Route path="/feed" element={<Feed />} />
       <Route path="/post" element={<Post />} />
+      <Route path="/messages" element={<Messages />} />
+      <Route path="/newpost" element={<NewPost />} />
       <Route
         path="/test"
         element={
