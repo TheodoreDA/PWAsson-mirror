@@ -3,6 +3,7 @@ import { MdOutlineAddBox } from "react-icons/md";
 import { BiSolidCommentDetail } from "react-icons/bi";
 import { FaHeart } from "react-icons/fa";
 import './Feed.css';
+import { Link } from "react-router-dom";
 
 function ListItem(props) {
     return <li className="cursor-pointer">
@@ -29,12 +30,12 @@ function Feed() {
     return (
         <div className="Feed">
             <div className="header">
-                <IoIosChatbubbles className="icon cursor-pointer"/>
+                <Link to="/messages"><IoIosChatbubbles className="icon cursor-pointer"/></Link>
                 <h1>Dernières publications</h1>
                 <div className="username cursor-pointer">{ user }</div>
             </div>
             <div className="body">
-                <div className="new-post"><div className="cursor-pointer"><MdOutlineAddBox/> <h3>Nouveau post</h3></div></div>
+                <Link to="/newpost" className="new-post cursor-pointer"><MdOutlineAddBox/><h3>Nouveau post</h3></Link>
                 <ul>{ listItems }</ul>
             </div>
         </div>

@@ -1,0 +1,119 @@
+.NewPost {
+    background-color: #282c34;
+    min-height: 100vh;
+    color: white;
+    overflow-x: hidden;
+}
+
+.NewPost .header {
+    display: flex;
+    position: fixed;
+    background-color: inherit;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    height: 10vh;
+    border-bottom: 1px solid lightgray;
+
+    & > div:first-child {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        align-items: flex-end;
+        justify-content: center;
+    }
+
+    & h1 {
+        flex: 2;
+        align-self: center;
+        text-align: center;
+    }
+
+    & .username {
+        flex: 1;
+        text-align: end;
+    }
+}
+
+.NewPost .body {
+    display: flex;
+    flex-direction: column;
+    margin: calc(10vh + 2rem + 1px) 30vw 0 30vw;
+    padding-top: 3rem;
+
+    & form {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    & form > div {
+        display: flex;
+
+        & > :last-child {
+            flex: 4
+        }
+    }
+
+    & form button {
+        background-color: #39465f;
+        color: white;
+        border: none;
+        margin-top: 10px;
+        padding: 7px 8rem;
+        border-radius: 5px;
+        width: fit-content;
+        align-self: center;
+    }
+
+    & label {
+        flex: 1;
+        font-size: large;
+        display: flex;
+        justify-content: flex-end;
+        padding-right: 1rem;
+    }
+
+    & input {
+        background: none;
+        border: none;
+        border-bottom: 1px solid #D7D7D7;
+        outline: none;
+        font-size: large;
+        color: white;
+    }
+
+    & .image-placeholder {
+        border: 2px dashed #cccccc;
+        padding: 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+    }
+}
+
+.cursor-pointer:hover {
+    cursor: pointer;
+}
+
+.return-cursor {
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    display: flex;
+    flex-direction: column;
+
+    & svg {
+        color: lightgray;
+        height: 30px;
+        width: 30px;
+    }
+}
+
+.username {
+    font-size: larger;
+    text-decoration: underline;
+    height: fit-content;
+}
