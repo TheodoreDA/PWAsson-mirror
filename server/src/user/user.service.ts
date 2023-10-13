@@ -87,6 +87,6 @@ export class UserService {
 
     if (userIdx == -1)
       throw new NotFoundException("Could not find user '" + userId + "'");
-    delete this.users[userIdx];
+    this.users.splice(userIdx, 1);
   }
 }
