@@ -6,10 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { AccessTokenInterceptor } from 'src/interceptor/token.interceptor';
 
 @Controller('user')
 export class UserController {
@@ -30,6 +32,7 @@ export class UserController {
     return await this.userService.findOne(userId);
   }
 
+  @UseInterceptors(AccessTokenInterceptor)
   @Patch(':userId')
   async update(
     @Param('userId') userId: string,
@@ -38,6 +41,7 @@ export class UserController {
     return await this.userService.update(userId, updateUserDto);
   }
 
+  @UseInterceptors(AccessTokenInterceptor)
   @Delete(':userId')
   async remove(@Param('userId') userId: string) {
     return await this.userService.remove(userId);
