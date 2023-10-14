@@ -8,6 +8,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
+import { Payload } from 'src/auth/dto/payload';
 
 @Injectable()
 export class AccessTokenInterceptor implements NestInterceptor {
@@ -33,9 +34,10 @@ export class AccessTokenInterceptor implements NestInterceptor {
     const token = request.headers.authorization.substring(7);
 
     try {
-      await this.jwtService.verifyAsync(token, {
+      const payload: Payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       });
+      request.body.payload = payload;
     } catch (e) {
       console.log(e);
       throw new BadRequestException(e.message ?? 'JWT exception');
