@@ -27,7 +27,7 @@ export class AuthService {
       uid: user.uid,
       username: user.username,
     };
-    return await this.jwtService.signAsync(payload);
+    return await this.createToken(payload);
   }
 
   async register(registerDto: RegisterDto): Promise<string> {
@@ -65,6 +65,7 @@ export class AuthService {
       return await this.jwtService.signAsync(payload);
     } catch (e) {
       console.log(e);
+      throw new BadRequestException('Unknown Exception.');
     }
   }
 }
