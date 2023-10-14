@@ -1,92 +1,171 @@
 import { User } from './entities/user.entity';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { userFactory } from 'src/factory/user.factory';
 import * as bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
+import { db } from 'src/database/app.database';
+import { Models, Query } from 'node-appwrite';
 
 @Injectable()
 export class UserService {
-  private users: User[] = [];
-
-  constructor() {
-    this.users.push(
-      userFactory
-        .setUid('1234567890')
-        .setUsername('username1')
-        .setHash(bcrypt.hashSync('password1', 10))
-        .build(),
-    );
-    this.users.push(
-      userFactory
-        .setUid('0987654321')
-        .setUsername('username2')
-        .setHash(bcrypt.hashSync('password2', 10))
-        .build(),
-    );
-    this.users.push(
-      userFactory
-        .setUid('6543210987')
-        .setUsername('username3')
-        .setHash(bcrypt.hashSync('password3', 10))
-        .build(),
-    );
-  }
-
   async create(createUserDto: CreateUserDto): Promise<User> {
     createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
     const user = userFactory
-      .setUid(await bcrypt.genSalt(10))
+      .setUid(uuidv4())
       .setUsername(createUserDto.username)
       .setHash(createUserDto.password)
       .build();
-    this.users.push(user);
+
+    try {
+      await db.createDocument(
+        '652a65eca2668aff6d06',
+        '652a65f8780950fd4a51',
+        user.uid,
+        user,
+      );
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException(e.message);
+    }
     return user;
   }
 
   async findAll(): Promise<User[]> {
-    return this.users;
+    let docs: Models.DocumentList<Models.Document>;
+
+    try {
+      docs = await db.listDocuments(
+        '652a65eca2668aff6d06',
+        '652a65f8780950fd4a51',
+      );
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException(e.message);
+    }
+
+    const users: User[] = [];
+
+    docs.documents.forEach((doc: Models.Document) =>
+      users.push(
+        userFactory
+          .setUid(doc['uid'])
+          .setUsername(doc['username'])
+          .setHash(doc['hash'])
+          .setRole(doc['role'])
+          .build(),
+      ),
+    );
+    return users;
   }
 
   async findOne(userId: string): Promise<User> {
-    const user = this.users.find((user) => user.uid == userId);
+    let docs: Models.DocumentList<Models.Document>;
 
-    if (user == undefined)
-      throw new NotFoundException(
-        "Could not find user with id '" + userId + "'",
+    try {
+      docs = await db.listDocuments(
+        '652a65eca2668aff6d06',
+        '652a65f8780950fd4a51',
+        [Query.equal('uid', userId)],
       );
-    return user;
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException(e.message);
+    }
+
+    if (docs.total == 0) {
+      throw new NotFoundException(
+        "Could not find user with uid '" + userId + "'",
+      );
+    }
+    if (docs.total > 1)
+      throw new ConflictException("Multiple users with uid '" + userId + "'");
+
+    return userFactory
+      .setUid(docs.documents[0]['uid'])
+      .setUsername(docs.documents[0]['username'])
+      .setHash(docs.documents[0]['hash'])
+      .setRole(docs.documents[0]['role'])
+      .build();
   }
 
   async findByUsername(username: string): Promise<User> {
-    const user = this.users.find((user) => user.username == username);
+    let docs: Models.DocumentList<Models.Document>;
 
-    if (user == undefined)
+    try {
+      docs = await db.listDocuments(
+        '652a65eca2668aff6d06',
+        '652a65f8780950fd4a51',
+        [Query.equal('username', username)],
+      );
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException(e.message);
+    }
+
+    if (docs.total == 0) {
       throw new NotFoundException(
         "Could not find user with username '" + username + "'",
       );
-    return user;
+    }
+    if (docs.total > 1) {
+      throw new ConflictException(
+        "Multiple users with username '" + username + "'",
+      );
+    }
+
+    return userFactory
+      .setUid(docs.documents[0]['uid'])
+      .setUsername(docs.documents[0]['username'])
+      .setHash(docs.documents[0]['hash'])
+      .setRole(docs.documents[0]['role'])
+      .build();
   }
 
   async update(userId: string, updateUserDto: UpdateUserDto): Promise<User> {
-    const userIdx = this.users.findIndex((user) => user.uid == userId);
+    let doc: Models.Document;
+    const user = await this.findOne(userId);
 
-    if (userIdx == -1)
-      throw new NotFoundException("Could not find user '" + userId + "'");
-    if (updateUserDto.username)
-      this.users[userIdx].username = updateUserDto.username;
-    if (updateUserDto.password) {
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
-      this.users[userIdx].username = updateUserDto.username;
+    user.username = updateUserDto.username;
+    updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    user.hash = updateUserDto.password;
+
+    try {
+      doc = await db.updateDocument(
+        '652a65eca2668aff6d06',
+        '652a65f8780950fd4a51',
+        userId,
+        user,
+      );
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException(e.message);
     }
-    return this.users[userIdx];
+
+    return userFactory
+      .setUid(doc['uid'])
+      .setUsername(doc['username'])
+      .setHash(doc['hash'])
+      .setRole(doc['role'])
+      .build();
   }
 
   async remove(userId: string): Promise<void> {
-    const userIdx = this.users.findIndex((user) => user.uid == userId);
-
-    if (userIdx == -1)
-      throw new NotFoundException("Could not find user '" + userId + "'");
-    this.users.splice(userIdx, 1);
+    try {
+      await db.deleteDocument(
+        '652a65eca2668aff6d06',
+        '652a65f8780950fd4a51',
+        userId,
+      );
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException(e.message);
+    }
   }
 }
