@@ -25,8 +25,8 @@ export class UserService {
 
     try {
       await db.createDocument(
-        '652a65eca2668aff6d06',
-        '652a65f8780950fd4a51',
+        process.env.APPWRITE_DATABASE_ID,
+        process.env.APPWRITE_COLLECTION_USER_ID,
         user.uid,
         user,
       );
@@ -42,8 +42,8 @@ export class UserService {
 
     try {
       docs = await db.listDocuments(
-        '652a65eca2668aff6d06',
-        '652a65f8780950fd4a51',
+        process.env.APPWRITE_DATABASE_ID,
+        process.env.APPWRITE_COLLECTION_USER_ID,
       );
     } catch (e) {
       console.log(e);
@@ -70,8 +70,8 @@ export class UserService {
 
     try {
       docs = await db.listDocuments(
-        '652a65eca2668aff6d06',
-        '652a65f8780950fd4a51',
+        process.env.APPWRITE_DATABASE_ID,
+        process.env.APPWRITE_COLLECTION_USER_ID,
         [Query.equal('uid', userId)],
       );
     } catch (e) {
@@ -100,8 +100,8 @@ export class UserService {
 
     try {
       docs = await db.listDocuments(
-        '652a65eca2668aff6d06',
-        '652a65f8780950fd4a51',
+        process.env.APPWRITE_DATABASE_ID,
+        process.env.APPWRITE_COLLECTION_USER_ID,
         [Query.equal('username', username)],
       );
     } catch (e) {
@@ -138,8 +138,8 @@ export class UserService {
 
     try {
       doc = await db.updateDocument(
-        '652a65eca2668aff6d06',
-        '652a65f8780950fd4a51',
+        process.env.APPWRITE_DATABASE_ID,
+        process.env.APPWRITE_COLLECTION_USER_ID,
         userId,
         user,
       );
@@ -159,8 +159,8 @@ export class UserService {
   async remove(userId: string): Promise<void> {
     try {
       await db.deleteDocument(
-        '652a65eca2668aff6d06',
-        '652a65f8780950fd4a51',
+        process.env.APPWRITE_DATABASE_ID,
+        process.env.APPWRITE_COLLECTION_USER_ID,
         userId,
       );
     } catch (e) {
