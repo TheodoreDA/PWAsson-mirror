@@ -6,12 +6,21 @@ import { CommentModule } from './comment/comment.module';
 import { ChatModule } from './chat/chat.module';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,
+    }),
+    // registerAsync fixes the ConfigurationModule not loading the .env file in time
+    JwtModule.registerAsync({
+      useFactory: () => ({
+        global: true,
+        secret: process.env.JWT_SECRET,
+        signOptions: { expiresIn: '7d' },
+      }),
     }),
     AuthModule,
     UserModule,
@@ -20,5 +29,6 @@ import { AdminModule } from './admin/admin.module';
     ChatModule,
     AdminModule,
   ],
+  exports: [JwtModule],
 })
 export class AppModule {}
