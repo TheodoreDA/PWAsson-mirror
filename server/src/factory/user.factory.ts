@@ -1,14 +1,14 @@
 import { User } from 'src/user/entities/user.entity';
-import { IFactory } from './IFactory';
 import { Role } from 'src/user/entities/role';
+import { AFactory } from './AFactory';
 
-export class UserFactory implements IFactory<User> {
+export class UserFactory extends AFactory<User> {
   private static _instance: UserFactory;
-  private user: User;
 
-  private constructor() {
-    this.user = new User();
-    this.user.role = 'user';
+  reset(): UserFactory {
+    this.object = new User();
+    this.object.role = 'user';
+    return this;
   }
 
   public static getInstance(): UserFactory {
@@ -16,31 +16,23 @@ export class UserFactory implements IFactory<User> {
   }
 
   setUid(uid: string): UserFactory {
-    this.user.uid = uid;
+    this.object.uid = uid;
     return this;
   }
 
   setUsername(username: string): UserFactory {
-    this.user.username = username;
+    this.object.username = username;
     return this;
   }
 
   setHash(hash: string): UserFactory {
-    this.user.hash = hash;
+    this.object.hash = hash;
     return this;
   }
 
   setRole(role: Role): UserFactory {
-    this.user.role = role;
+    this.object.role = role;
     return this;
-  }
-
-  build(): User {
-    const user = this.user;
-
-    this.user = new User();
-    this.user.role = 'user';
-    return user;
   }
 }
 
