@@ -5,16 +5,11 @@ export class PublicationFactory extends AFactory<Publication> {
   private static _instance: PublicationFactory;
 
   reset(): PublicationFactory {
-    const now = new Date();
-
     this.object = new Publication();
     this.object.title = '';
     this.object.description = '';
     this.object.pictureUid = '';
-    this.object.authorUid = '';
     this.object.likes = 0;
-    this.object.createdAt = now;
-    this.object.updatedAt = now;
     return this;
   }
 
@@ -42,23 +37,8 @@ export class PublicationFactory extends AFactory<Publication> {
     return this;
   }
 
-  setAuthorUid(authorUid: string): PublicationFactory {
-    this.object.authorUid = authorUid;
-    return this;
-  }
-
   setLikes(likes: number): PublicationFactory {
     this.object.likes = likes;
-    return this;
-  }
-
-  setCreatedAt(createdAt: Date): PublicationFactory {
-    this.object.createdAt = createdAt;
-    return this;
-  }
-
-  setUpdatedAt(updatedAt: Date): PublicationFactory {
-    this.object.updatedAt = updatedAt;
     return this;
   }
 }

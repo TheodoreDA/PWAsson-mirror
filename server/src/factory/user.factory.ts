@@ -8,6 +8,8 @@ export class UserFactory extends AFactory<User> {
   reset(): UserFactory {
     this.object = new User();
     this.object.role = 'user';
+    this.object.publications = [];
+    this.object.publicationsLiked = [];
     return this;
   }
 
