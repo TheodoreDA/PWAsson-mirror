@@ -1,9 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { InitAppWriteClient } from './database/app.database';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  InitAppWriteClient();
 
   app.enableCors({
     origin: 'http://localhost:3000',
