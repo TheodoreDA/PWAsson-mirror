@@ -33,9 +33,12 @@ export class AccessTokenInterceptor implements NestInterceptor {
     const token = request.headers.authorization.substring(7);
 
     try {
-      await this.jwtService.verifyAsync(token);
+      await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET,
+      });
     } catch (e) {
       console.log(e);
+      throw new BadRequestException(e.message ?? 'JWT exception');
     }
     return next.handle();
   }
