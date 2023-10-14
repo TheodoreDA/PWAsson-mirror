@@ -1,5 +1,6 @@
 import { User } from 'src/user/entities/user.entity';
 import { IFactory } from './IFactory';
+import { Role } from 'src/user/entities/role';
 
 export class UserFactory implements IFactory<User> {
   private static _instance: UserFactory;
@@ -7,6 +8,7 @@ export class UserFactory implements IFactory<User> {
 
   private constructor() {
     this.user = new User();
+    this.user.role = 'user';
   }
 
   public static getInstance(): UserFactory {
@@ -28,10 +30,16 @@ export class UserFactory implements IFactory<User> {
     return this;
   }
 
+  setRole(role: Role): UserFactory {
+    this.user.role = role;
+    return this;
+  }
+
   build(): User {
     const user = this.user;
 
     this.user = new User();
+    this.user.role = 'user';
     return user;
   }
 }
