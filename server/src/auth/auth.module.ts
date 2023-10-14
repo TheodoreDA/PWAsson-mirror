@@ -5,19 +5,9 @@ import { UserModule } from 'src/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [
-    UserModule,
-    // registerAsync fixes the ConfigurationModule not loading the .env file in time
-    JwtModule.registerAsync({
-      useFactory: () => ({
-        global: true,
-        secret: process.env.JWT_SECRET,
-        signOptions: { expiresIn: '7d' },
-      }),
-    }),
-  ],
+  imports: [UserModule, JwtModule],
   controllers: [AuthController],
   providers: [AuthService],
-  exports: [AuthService, JwtModule],
+  exports: [AuthService],
 })
 export class AuthModule {}
