@@ -1,56 +1,62 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreatePublicationDto } from './dto/create-publication.dto';
 import { UpdatePublicationDto } from './dto/update-publication.dto';
 import { Publication } from './entities/publication.entity';
 import { publicationFactory } from 'src/factory/publication.factory';
+import { v4 as uuidv4 } from 'uuid';
+import { db, storage } from 'src/database/app.database';
+import { InputFile } from 'node-appwrite';
 
 @Injectable()
 export class PublicationService {
   private publications: Publication[] = [];
 
-  constructor() {
-    this.publications.push(
-      publicationFactory
-        .setUid('1234567890')
-        .setTitle('Title')
-        .setDescription('Description')
-        .setPictureUid('picture1')
-        .setAuthorUid('author1')
-        .setLikes(42)
-        .build(),
-    );
-    this.publications.push(
-      publicationFactory
-        .setUid('0987654321')
-        .setTitle('Title2')
-        .setDescription('Description2')
-        .setPictureUid('picture2')
-        .setAuthorUid('author2')
-        .setLikes(1)
-        .build(),
-    );
-    this.publications.push(
-      publicationFactory
-        .setUid('6543210987')
-        .setTitle('Title3')
-        .setDescription('Description3')
-        .setPictureUid('picture3')
-        .setAuthorUid('author3')
-        .setLikes(6)
-        .build(),
-    );
-  }
+  async create(
+    createPublicationDto: CreatePublicationDto,
+    picture: Express.Multer.File,
+    authorUid: string,
+  ) {
+    const pictureUid = uuidv4();
 
-  create(createPublicationDto: CreatePublicationDto, authorUid: string) {
+    try {
+      await storage.createFile(
+        process.env.APPWRITE_BUCKET_ID,
+        pictureUid,
+        InputFile.fromPath(picture.path, picture.originalname),
+      );
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException(e.message);
+    }
     const publication = publicationFactory
-      .setUid('6543210987')
+      .setUid(uuidv4())
       .setTitle(createPublicationDto.title)
       .setDescription(createPublicationDto.description)
-      .setPictureUid('picture3')
-      .setAuthorUid(authorUid)
+      .setPictureUid(pictureUid)
       .build();
 
-    this.publications.push(publication);
+    try {
+      await db.createDocument(
+        process.env.APPWRITE_DATABASE_ID,
+        process.env.APPWRITE_COLLECTION_PUBLICATION_ID,
+        publication.uid,
+        { ...publication.toObject(), author: authorUid },
+      );
+    } catch (e) {
+      console.log(e);
+      try {
+        await storage.deleteFile(process.env.APPWRITE_BUCKET_ID, pictureUid);
+      } catch (e) {
+        console.log(e);
+        throw new InternalServerErrorException(e.message);
+      }
+      throw new BadRequestException(e.message);
+    }
     return publication;
   }
 

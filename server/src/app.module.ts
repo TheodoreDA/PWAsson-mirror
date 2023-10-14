@@ -29,6 +29,5 @@ import { JwtModule } from '@nestjs/jwt';
     ChatModule,
     AdminModule,
   ],
-  exports: [JwtModule],
 })
 export class AppModule {}

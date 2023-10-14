@@ -16,6 +16,24 @@ import { Models, Query } from 'node-appwrite';
 @Injectable()
 export class UserService {
   async create(createUserDto: CreateUserDto): Promise<User> {
+    let docs: Models.DocumentList<Models.Document>;
+
+    try {
+      docs = await db.listDocuments(
+        process.env.APPWRITE_DATABASE_ID,
+        process.env.APPWRITE_COLLECTION_USER_ID,
+        [Query.equal('username', createUserDto.username)],
+      );
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException(e.message);
+    }
+    if (docs.total != 0) {
+      throw new BadRequestException(
+        "Username '" + createUserDto.username + "' is already used",
+      );
+    }
+
     createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
     const user = userFactory
       .setUid(uuidv4())
