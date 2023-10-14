@@ -1,21 +1,21 @@
 import { Publication } from 'src/publication/entities/publication.entity';
-import { IFactory } from './IFactory';
+import { AFactory } from './AFactory';
 
-export class PublicationFactory implements IFactory<Publication> {
+export class PublicationFactory extends AFactory<Publication> {
   private static _instance: PublicationFactory;
-  private publication: Publication;
 
-  private constructor() {
+  reset(): PublicationFactory {
     const now = new Date();
-    this.publication = new Publication();
 
-    this.publication.title = '';
-    this.publication.description = '';
-    this.publication.pictureUid = '';
-    this.publication.authorUid = '';
-    this.publication.likes = 0;
-    this.publication.createdAt = now;
-    this.publication.updatedAt = now;
+    this.object = new Publication();
+    this.object.title = '';
+    this.object.description = '';
+    this.object.pictureUid = '';
+    this.object.authorUid = '';
+    this.object.likes = 0;
+    this.object.createdAt = now;
+    this.object.updatedAt = now;
+    return this;
   }
 
   public static getInstance(): PublicationFactory {
@@ -23,50 +23,43 @@ export class PublicationFactory implements IFactory<Publication> {
   }
 
   setUid(uid: string): PublicationFactory {
-    this.publication.uid = uid;
+    this.object.uid = uid;
     return this;
   }
 
   setTitle(title: string): PublicationFactory {
-    this.publication.title = title;
+    this.object.title = title;
     return this;
   }
 
   setDescription(description: string): PublicationFactory {
-    this.publication.description = description;
+    this.object.description = description;
     return this;
   }
 
   setPictureUid(pictureUid: string): PublicationFactory {
-    this.publication.pictureUid = pictureUid;
+    this.object.pictureUid = pictureUid;
     return this;
   }
 
   setAuthorUid(authorUid: string): PublicationFactory {
-    this.publication.authorUid = authorUid;
+    this.object.authorUid = authorUid;
     return this;
   }
 
   setLikes(likes: number): PublicationFactory {
-    this.publication.likes = likes;
+    this.object.likes = likes;
     return this;
   }
 
   setCreatedAt(createdAt: Date): PublicationFactory {
-    this.publication.createdAt = createdAt;
+    this.object.createdAt = createdAt;
     return this;
   }
 
   setUpdatedAt(updatedAt: Date): PublicationFactory {
-    this.publication.updatedAt = updatedAt;
+    this.object.updatedAt = updatedAt;
     return this;
-  }
-
-  build(): Publication {
-    const publication = this.publication;
-
-    this.publication = new Publication();
-    return publication;
   }
 }
 
