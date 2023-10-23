@@ -28,7 +28,7 @@ function Post() {
             <div className="header">
                 <div><Link to="/feed" className="return-cursor"><IoMdArrowBack/>Retour</Link></div>
                 <h1>{ post.title }</h1>
-                <div className="username cursor-pointer">{ user }</div>
+                <Link to="/profile" className="username cursor-pointer">{ user }</Link>
             </div>
             <div className="body">
                 <div className="post">

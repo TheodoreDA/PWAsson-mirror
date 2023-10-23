@@ -103,8 +103,10 @@ class Content extends React.Component {
     render() {
         return <div>
             <header>
-                <h3 className="username cursor-pointer">{ this.user }</h3>
-                { this.state.content != null ? <h1>{ this.state.content.userName }</h1> : <div/> }
+                <div>
+                    <Link to="/profile" className="username cursor-pointer">{ this.user }</Link>
+                    { this.state.content != null ? <h1>{ this.state.content.userName }</h1> : <div/> }
+                </div>
             </header>
             <div className="messages-body">
                 <ul>

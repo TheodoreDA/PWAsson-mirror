@@ -7,7 +7,6 @@
 
 .NewPost .header {
     display: flex;
-    position: fixed;
     background-color: inherit;
     top: 0;
     left: 0;
@@ -31,8 +30,10 @@
     }
 
     & .username {
-        flex: 1;
-        text-align: end;
+        color: white;
+        font-size: larger;
+        text-decoration: underline;
+        height: fit-content;
     }
 }
 
@@ -68,10 +69,10 @@
     }
 
     & label {
-        flex: 1;
+        /* flex: 1; */
         font-size: large;
-        display: flex;
-        justify-content: flex-end;
+        /* display: flex; */
+        /* justify-content: flex-end; */
         padding-right: 1rem;
     }
 

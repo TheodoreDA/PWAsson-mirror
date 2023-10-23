@@ -31,8 +31,10 @@
     }
 
     & .username {
-        flex: 1;
-        text-align: end;
+        color: white;
+        font-size: larger;
+        text-decoration: underline;
+        height: fit-content;
     }
 }
 
