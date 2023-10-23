@@ -32,10 +32,10 @@ function Feed() {
             <div className="header">
                 <Link to="/messages"><IoIosChatbubbles className="icon cursor-pointer"/></Link>
                 <h1>Dernières publications</h1>
-                <div className="username cursor-pointer">{ user }</div>
+                <Link to="/profile" className="username cursor-pointer">{ user }</Link>
             </div>
             <div className="body">
-                <Link to="/newpost" className="new-post cursor-pointer"><MdOutlineAddBox/><h3>Nouveau post</h3></Link>
+                <Link to="/" className="new-post cursor-pointer"><MdOutlineAddBox/><h3>Nouveau post</h3></Link>
                 <ul>{ listItems }</ul>
             </div>
         </div>

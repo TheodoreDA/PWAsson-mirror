@@ -87,9 +87,10 @@
     }
 
     & .username {
-        width: fit-content;
-        margin: 0;
-        align-self: end;
+        color: white;
+        font-size: larger;
+        text-decoration: underline;
+        height: fit-content;
     }
 }
 

@@ -28,6 +28,14 @@
     }
 
     & .username {
+        color: white;
+        font-size: larger;
+        text-decoration: underline;
+        height: fit-content;
+    }
+
+    & .profile {
+        color: white;
         font-size: larger;
         text-decoration: underline;
         height: fit-content;
