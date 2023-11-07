@@ -11,22 +11,7 @@ services:
       - /usr/src/app/node_modules
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
-    command: npm run start
-    env_file:
-      - .env
-    networks:
-      - webnet
-  dev:
-    container_name: dev
-    build:
-      context: .
-      target: development
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
-    ports:
-      - ${SERVER_PORT}:${SERVER_PORT}
-    command: npm run start
+    command: sh -c "yarn install && yarn run start"
     env_file:
       - .env
     networks:
