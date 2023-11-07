@@ -1,17 +1,22 @@
-import { Entity, BaseEntity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Publication } from 'src/publication/entities/publication.entity';
 import { Role } from './role';
 
-@Entity()
-export class User extends BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
+export class User {
   uid: string;
-
-  @Column()
   username: string;
-
-  @Column()
   hash: string;
-
-  @Column()
   role: Role;
+  publications: Publication[];
+  publicationsLiked: Publication[];
+
+  toObject(): object {
+    return {
+      uid: this.uid,
+      username: this.username,
+      hash: this.hash,
+      role: this.role,
+      publications: this.publications.map((pub) => pub.uid),
+      publicationsLiked: this.publicationsLiked.map((pub) => pub.uid),
+    };
+  }
 }
