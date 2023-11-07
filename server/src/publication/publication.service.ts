@@ -30,7 +30,6 @@ export class PublicationService {
         InputFile.fromPath(picture.path, picture.originalname),
       );
     } catch (e) {
-      console.log(e);
       throw new BadRequestException(e.message);
     }
     const publication = publicationFactory
@@ -48,11 +47,9 @@ export class PublicationService {
         { ...publication.toObject(), author: authorUid },
       );
     } catch (e) {
-      console.log(e);
       try {
         await storage.deleteFile(process.env.APPWRITE_BUCKET_ID, pictureUid);
       } catch (e) {
-        console.log(e);
         throw new InternalServerErrorException(e.message);
       }
       throw new BadRequestException(e.message);
