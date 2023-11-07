@@ -7,7 +7,6 @@ import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     UserModule,
-    // F*ck this I hate the 'secretOrPrivateKey must have a value' so much
     JwtModule.registerAsync({
       useFactory: () => ({
         global: false,

@@ -25,7 +25,6 @@ export class UserService {
         [Query.equal('username', createUserDto.username)],
       );
     } catch (e) {
-      console.log(e);
       throw new BadRequestException(e.message);
     }
     if (docs.total != 0) {
@@ -49,7 +48,6 @@ export class UserService {
         user,
       );
     } catch (e) {
-      console.log(e);
       throw new BadRequestException(e.message);
     }
     return user;
@@ -64,7 +62,6 @@ export class UserService {
         process.env.APPWRITE_COLLECTION_USER_ID,
       );
     } catch (e) {
-      console.log(e);
       throw new BadRequestException(e.message);
     }
 
@@ -93,7 +90,6 @@ export class UserService {
         [Query.equal('uid', userId)],
       );
     } catch (e) {
-      console.log(e);
       throw new BadRequestException(e.message);
     }
 
@@ -123,7 +119,6 @@ export class UserService {
         [Query.equal('username', username)],
       );
     } catch (e) {
-      console.log(e);
       throw new BadRequestException(e.message);
     }
 
@@ -162,7 +157,6 @@ export class UserService {
         user,
       );
     } catch (e) {
-      console.log(e);
       throw new BadRequestException(e.message);
     }
 
@@ -182,7 +176,6 @@ export class UserService {
         userId,
       );
     } catch (e) {
-      console.log(e);
       throw new BadRequestException(e.message);
     }
   }
