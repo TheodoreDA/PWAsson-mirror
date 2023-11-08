@@ -1,0 +1,196 @@
+.Messages {
+    background-color: #282C34;
+    min-height: 100vh;
+    color: white;
+    overflow-x: hidden;
+    display: flex;
+
+}
+
+.Messages > div {
+    flex: 3;
+}
+
+.Messages aside {
+    background-color: #202328;
+    flex: 1;
+    display: flex;
+    border-right: 1px solid #0C0D0F;
+    flex-direction: column;
+    overflow: hidden;
+
+    & nav {
+        padding-top: 1rem;
+    }
+
+    & ul {
+        padding: 0;
+        border-top: 1px solid #0C0D0F;
+    }
+
+    & a {
+        width: fit-content;
+        padding: 1rem;
+    }
+
+    & button {
+        display: flex;
+        align-items: center;
+        color: white;
+        background: none;
+        border: none;
+        gap: 0.5em;
+        width: fit-content;
+
+        & h3 {
+            font-weight: normal;
+            margin: 0;
+        }
+
+        & svg {
+            height: 30px;
+            width: 30px;
+        }
+    }
+}
+
+.Messages aside li, & li.selected {
+    border-bottom: 1px solid #0C0D0F;
+    padding: 1em;
+
+    & > div {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+    }
+
+    & p {
+        margin: 0;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+}
+
+.Messages aside li.selected {
+    background-color: #0C0D0F;
+}
+
+.Messages > div {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+
+    & header {
+        display: flex;
+        flex-direction: column;
+    }
+
+    & .username {
+        color: white;
+        font-size: larger;
+        text-decoration: underline;
+        height: fit-content;
+    }
+}
+
+.Messages .messages-body {
+    display: flex;
+    flex: 1;
+
+    & ul {
+        padding: 0;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+    }
+
+    & li {
+        padding: 1rem;
+        width: fit-content;
+        border-radius: 5px;
+        position: relative;
+
+        &.right-mess {
+            background-color: #D9D9D9;
+            color: black;
+
+            &::before {
+                content: "";
+                position: absolute;
+                border-left: 10px solid transparent;
+                border-right: 10px solid #D9D9D9;
+                border-top: 10px solid transparent;
+                border-bottom: 10px solid #D9D9D9;
+                left: -15px;
+                bottom: 0;
+            }
+        }
+
+        &.left-mess {
+            align-self: end;
+            background-color: #325CB1;
+
+            &::before {
+                content: "";
+                position: absolute;
+                border-left: 10px solid #325CB1;
+                border-right: 10px solid transparent;
+                border-top: 10px solid transparent;
+                border-bottom: 10px solid #325CB1;
+                right: -15px;
+                bottom: 0;
+            }
+        }
+    }
+}
+
+.Messages .send-message {
+    display: flex;
+    border-bottom: 1px solid #D7D7D7;
+    padding-bottom: 0.2em;
+
+    & input {
+        background: none;
+        border: none;
+        outline: none;
+        width: 100%;
+        font-size: large;
+        color: white;
+    }
+
+    & svg {
+        color: lightgray;
+        height: 30px;
+        width: 30px;
+    }
+}
+
+.cursor-pointer:hover {
+    cursor: pointer;
+}
+
+.return-cursor {
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    display: flex;
+    flex-direction: column;
+
+    & svg {
+        color: lightgray;
+        height: 30px;
+        width: 30px;
+    }
+}
+
+.username {
+    font-size: larger;
+    text-decoration: underline;
+    height: fit-content;
+}
+
+li {
+    list-style: none;
+}
