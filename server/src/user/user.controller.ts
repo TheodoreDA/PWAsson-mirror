@@ -7,11 +7,13 @@ import {
   Param,
   Delete,
   UseInterceptors,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AccessTokenInterceptor } from 'src/interceptor/token.interceptor';
+import { Payload } from 'src/auth/dto/payload';
 
 @Controller('user')
 export class UserController {
@@ -37,13 +39,23 @@ export class UserController {
   async update(
     @Param('userId') userId: string,
     @Body() updateUserDto: UpdateUserDto,
+    @Body('payload') payload: Payload,
   ) {
+    if (userId != payload.uid) {
+      throw new UnauthorizedException('Only owner can update its data');
+    }
     return await this.userService.update(userId, updateUserDto);
   }
 
   @UseInterceptors(AccessTokenInterceptor)
   @Delete(':userId')
-  async remove(@Param('userId') userId: string) {
+  async remove(
+    @Param('userId') userId: string,
+    @Body('payload') payload: Payload,
+  ) {
+    if (userId != payload.uid) {
+      throw new UnauthorizedException('Only owner can delete its data');
+    }
     return await this.userService.remove(userId);
   }
 }
