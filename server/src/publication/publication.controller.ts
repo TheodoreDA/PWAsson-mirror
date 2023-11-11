@@ -65,6 +65,11 @@ export class PublicationController {
     return await this.publicationService.findOne(publicationId);
   }
 
+  @Get('picture/:pictureId')
+  async getPicture(@Param('pictureId') pictureId: string) {
+    return await this.publicationService.getPicture(pictureId);
+  }
+
   @UseInterceptors(AccessTokenInterceptor)
   @UseInterceptors(
     FileInterceptor('picture', {
