@@ -25,7 +25,7 @@ export class PublicationService {
 
     try {
       await storage.createFile(
-        process.env.APPWRITE_BUCKET_ID,
+        'DEV',
         pictureUid,
         InputFile.fromPath(picture.path, picture.originalname),
       );
@@ -40,15 +40,13 @@ export class PublicationService {
       .build();
 
     try {
-      await db.createDocument(
-        process.env.APPWRITE_DATABASE_ID,
-        process.env.APPWRITE_COLLECTION_PUBLICATION_ID,
-        publication.uid,
-        { ...publication.toObject(), author: authorUid },
-      );
+      await db.createDocument('DEV', 'PUBLICATIONS', publication.uid, {
+        ...publication.toObject(),
+        author: authorUid,
+      });
     } catch (e) {
       try {
-        await storage.deleteFile(process.env.APPWRITE_BUCKET_ID, pictureUid);
+        await storage.deleteFile('DEV', pictureUid);
       } catch (e) {
         throw new InternalServerErrorException(e.message);
       }

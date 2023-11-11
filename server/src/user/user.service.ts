@@ -19,11 +19,9 @@ export class UserService {
     let docs: Models.DocumentList<Models.Document>;
 
     try {
-      docs = await db.listDocuments(
-        process.env.APPWRITE_DATABASE_ID,
-        process.env.APPWRITE_COLLECTION_USER_ID,
-        [Query.equal('username', createUserDto.username)],
-      );
+      docs = await db.listDocuments('DEV', 'USERS', [
+        Query.equal('username', createUserDto.username),
+      ]);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
@@ -41,12 +39,7 @@ export class UserService {
       .build();
 
     try {
-      await db.createDocument(
-        process.env.APPWRITE_DATABASE_ID,
-        process.env.APPWRITE_COLLECTION_USER_ID,
-        user.uid,
-        user,
-      );
+      await db.createDocument('DEV', 'USERS', user.uid, user);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
@@ -57,10 +50,7 @@ export class UserService {
     let docs: Models.DocumentList<Models.Document>;
 
     try {
-      docs = await db.listDocuments(
-        process.env.APPWRITE_DATABASE_ID,
-        process.env.APPWRITE_COLLECTION_USER_ID,
-      );
+      docs = await db.listDocuments('DEV', 'USERS');
     } catch (e) {
       throw new BadRequestException(e.message);
     }
@@ -84,11 +74,9 @@ export class UserService {
     let docs: Models.DocumentList<Models.Document>;
 
     try {
-      docs = await db.listDocuments(
-        process.env.APPWRITE_DATABASE_ID,
-        process.env.APPWRITE_COLLECTION_USER_ID,
-        [Query.equal('uid', userId)],
-      );
+      docs = await db.listDocuments('DEV', 'USERS', [
+        Query.equal('uid', userId),
+      ]);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
@@ -113,11 +101,9 @@ export class UserService {
     let docs: Models.DocumentList<Models.Document>;
 
     try {
-      docs = await db.listDocuments(
-        process.env.APPWRITE_DATABASE_ID,
-        process.env.APPWRITE_COLLECTION_USER_ID,
-        [Query.equal('username', username)],
-      );
+      docs = await db.listDocuments('DEV', 'USERS', [
+        Query.equal('username', username),
+      ]);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
@@ -150,12 +136,7 @@ export class UserService {
     user.hash = updateUserDto.password;
 
     try {
-      doc = await db.updateDocument(
-        process.env.APPWRITE_DATABASE_ID,
-        process.env.APPWRITE_COLLECTION_USER_ID,
-        userId,
-        user,
-      );
+      doc = await db.updateDocument('DEV', 'USERS', userId, user);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
@@ -170,11 +151,7 @@ export class UserService {
 
   async remove(userId: string): Promise<void> {
     try {
-      await db.deleteDocument(
-        process.env.APPWRITE_DATABASE_ID,
-        process.env.APPWRITE_COLLECTION_USER_ID,
-        userId,
-      );
+      await db.deleteDocument('DEV', 'USERS', userId);
     } catch (e) {
       throw new BadRequestException(e.message);
     }

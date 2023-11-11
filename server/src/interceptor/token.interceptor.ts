@@ -39,7 +39,6 @@ export class AccessTokenInterceptor implements NestInterceptor {
       });
       request.body.payload = payload;
     } catch (e) {
-      console.log(e);
       throw new BadRequestException(e.message ?? 'JWT exception');
     }
     return next.handle();
