@@ -15,8 +15,6 @@ import { InputFile, Models, Query } from 'node-appwrite';
 
 @Injectable()
 export class PublicationService {
-  private publications: Publication[] = [];
-
   async create(
     createPublicationDto: CreatePublicationDto,
     picture: Express.Multer.File,
@@ -109,6 +107,15 @@ export class PublicationService {
       .setPictureUid(docs.documents[0]['pictureUid'])
       .setLikes(docs.documents[0]['likes'])
       .build();
+  }
+
+  async getPicture(pictureId: string) {
+    console.log('pictureIdd: ', pictureId);
+    try {
+      return storage.getFileView('DEV', pictureId);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
   async update(
