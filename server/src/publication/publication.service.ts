@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -10,7 +11,7 @@ import { Publication } from './entities/publication.entity';
 import { publicationFactory } from 'src/factory/publication.factory';
 import { v4 as uuidv4 } from 'uuid';
 import { db, storage } from 'src/database/app.database';
-import { InputFile } from 'node-appwrite';
+import { InputFile, Models, Query } from 'node-appwrite';
 
 @Injectable()
 export class PublicationService {
@@ -55,53 +56,113 @@ export class PublicationService {
     return publication;
   }
 
-  findAll() {
-    return this.publications;
+  async findAll() {
+    let docs: Models.DocumentList<Models.Document>;
+
+    try {
+      docs = await db.listDocuments('DEV', 'PUBLICATIONS');
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+
+    const publications: Publication[] = [];
+
+    docs.documents.forEach((doc: Models.Document) =>
+      publications.push(
+        publicationFactory
+          .setUid(doc['uid'])
+          .setTitle(doc['title'])
+          .setDescription(doc['description'])
+          .setPictureUid(doc['pictureUid'])
+          .setLikes(doc['likes'])
+          .build(),
+      ),
+    );
+    return publications;
   }
 
-  findOne(publicationId: string) {
-    const publication = this.publications.find(
-      (publication) => publication.uid == publicationId,
-    );
+  async findOne(publicationId: string) {
+    let docs: Models.DocumentList<Models.Document>;
 
-    if (publication == undefined)
+    try {
+      docs = await db.listDocuments('DEV', 'PUBLICATIONS', [
+        Query.equal('uid', publicationId),
+      ]);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+
+    if (docs.total == 0) {
       throw new NotFoundException(
-        "Could not find publication with id '" + publicationId + "'",
+        "Could not find publication with uid '" + publicationId + "'",
       );
-    return publication;
+    }
+    if (docs.total > 1)
+      throw new ConflictException(
+        "Multiple publications with uid '" + publicationId + "'",
+      );
+
+    return publicationFactory
+      .setUid(docs.documents[0]['uid'])
+      .setTitle(docs.documents[0]['title'])
+      .setDescription(docs.documents[0]['description'])
+      .setPictureUid(docs.documents[0]['pictureUid'])
+      .setLikes(docs.documents[0]['likes'])
+      .build();
   }
 
-  // TODO: Check if requesting user is the author
-  update(publicationId: string, updatePublicationDto: UpdatePublicationDto) {
-    const publicationIdx = this.publications.findIndex(
-      (publication) => publication.uid == publicationId,
-    );
+  async update(
+    publicationId: string,
+    picture: Express.Multer.File,
+    updatePublicationDto: UpdatePublicationDto,
+  ) {
+    let doc: Models.Document;
+    const publication = await this.findOne(publicationId);
 
-    if (publicationIdx == -1) {
-      throw new NotFoundException(
-        "Could not find publication '" + publicationId + "'",
-      );
+    if (picture != undefined || picture != null) {
+      const pictureUid = uuidv4();
+
+      try {
+        await storage.createFile(
+          'DEV',
+          pictureUid,
+          InputFile.fromPath(picture.path, picture.originalname),
+        );
+      } catch (e) {
+        throw new BadRequestException(e.message);
+      }
+      publication.pictureUid = pictureUid;
     }
-    if (updatePublicationDto.title)
-      this.publications[publicationIdx].title = updatePublicationDto.title;
-    if (updatePublicationDto.description) {
-      this.publications[publicationIdx].description =
-        updatePublicationDto.description;
+    publication.title = updatePublicationDto.title;
+    publication.description = updatePublicationDto.description;
+
+    try {
+      doc = await db.updateDocument('DEV', 'USERS', publicationId, publication);
+    } catch (e) {
+      throw new BadRequestException(e.message);
     }
-    return this.publications[publicationIdx];
+
+    return publicationFactory
+      .setUid(doc['uid'])
+      .setTitle(doc['title'])
+      .setDescription(doc['description'])
+      .setPictureUid(doc['pictureUid'])
+      .setLikes(doc['likes'])
+      .build();
   }
 
-  // TODO: Check if requesting user is the author
-  remove(publicationId: string) {
-    const publicationIdx = this.publications.findIndex(
-      (publication) => publication.uid == publicationId,
-    );
+  async remove(publicationId: string) {
+    const publication = await this.findOne(publicationId);
 
-    if (publicationIdx == -1) {
-      throw new NotFoundException(
-        "Could not find publication '" + publicationId + "'",
-      );
+    try {
+      await db.deleteDocument('DEV', 'USERS', publicationId);
+    } catch (e) {
+      throw new BadRequestException(e.message);
     }
-    this.publications.splice(publicationIdx, 1);
+    try {
+      await storage.deleteFile('DEV', publication.pictureUid);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 }
