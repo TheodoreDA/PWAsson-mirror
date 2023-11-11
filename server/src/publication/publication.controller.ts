@@ -11,6 +11,7 @@ import {
   ParseFilePipe,
   MaxFileSizeValidator,
   FileTypeValidator,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PublicationService } from './publication.service';
 import { CreatePublicationDto } from './dto/create-publication.dto';
@@ -34,7 +35,7 @@ export class PublicationController {
     }),
   )
   @Post()
-  create(
+  async create(
     @Body() createPublicationDto: CreatePublicationDto,
     @Body('payload') payload: Payload,
     @UploadedFile(
@@ -47,7 +48,7 @@ export class PublicationController {
     )
     picture: Express.Multer.File,
   ) {
-    return this.publicationService.create(
+    return await this.publicationService.create(
       createPublicationDto,
       picture,
       payload.uid,
@@ -55,27 +56,58 @@ export class PublicationController {
   }
 
   @Get()
-  findAll() {
-    return this.publicationService.findAll();
+  async findAll() {
+    return await this.publicationService.findAll();
   }
 
   @Get(':publicationId')
-  findOne(@Param('publicationId') publicationId: string) {
-    return this.publicationService.findOne(publicationId);
+  async findOne(@Param('publicationId') publicationId: string) {
+    return await this.publicationService.findOne(publicationId);
   }
 
   @UseInterceptors(AccessTokenInterceptor)
+  @UseInterceptors(
+    FileInterceptor('picture', {
+      storage: diskStorage({
+        destination: './uploads',
+      }),
+    }),
+  )
   @Patch(':publicationId')
-  update(
+  async update(
     @Param('publicationId') publicationId: string,
     @Body() updatePublicationDto: UpdatePublicationDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: oneMb * 3 }),
+          new FileTypeValidator({ fileType: '(jpg|jpeg|png)$' }),
+        ],
+        fileIsRequired: false,
+      }),
+    )
+    picture: Express.Multer.File,
+    @Body('payload') payload: Payload,
   ) {
-    return this.publicationService.update(publicationId, updatePublicationDto);
+    if (publicationId != payload.uid) {
+      throw new UnauthorizedException('Only owner can update its publications');
+    }
+    return await this.publicationService.update(
+      publicationId,
+      picture,
+      updatePublicationDto,
+    );
   }
 
   @UseInterceptors(AccessTokenInterceptor)
   @Delete(':publicationId')
-  remove(@Param('publicationId') publicationId: string) {
-    return this.publicationService.remove(publicationId);
+  async remove(
+    @Param('publicationId') publicationId: string,
+    @Body('payload') payload: Payload,
+  ) {
+    if (publicationId != payload.uid) {
+      throw new UnauthorizedException('Only owner can remove its publications');
+    }
+    return await this.publicationService.remove(publicationId);
   }
 }
