@@ -1,0 +1,91 @@
+.Profile {
+    background-color: #282c34;
+    min-height: 100vh;
+    color: white;
+    overflow-x: hidden;
+}
+
+.Profile .header {
+    display: flex;
+    position: fixed;
+    background-color: inherit;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    height: 10vh;
+    border-bottom: 1px solid lightgray;
+
+    & > div:first-child {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        align-items: flex-end;
+        justify-content: center;
+    }
+
+    & h1 {
+        flex: 2;
+        align-self: center;
+        text-align: center;
+    }
+
+    & .username {
+        color: white;
+        font-size: larger;
+        text-decoration: underline;
+        height: fit-content;
+    }
+}
+
+.Profile .body {
+    display: flex;
+    flex-direction: column;
+    margin: calc(10vh + 2rem + 1px) 30vw 0 30vw;
+    padding-top: 3rem;
+
+    & div > div {
+        display: flex;
+
+        & > :last-child {
+            flex: 4
+        }
+    }
+
+    & div > div > label {
+        font-size: large;
+        padding-right: 1rem;
+        align-self: center;
+        text-align: center;
+    }
+
+    & div > div > h3 {
+        background: none;
+        border: none;
+        outline: none;
+        font-size: large;
+        color: white;
+    }
+
+    & div > button {
+        background-color: #39465f;
+        color: white;
+        border: none;
+        margin-left: 125px;
+        margin-top: 10px;
+        padding: 7px 2rem;
+        border-radius: 5px;
+        width: fit-content;
+    }
+
+    & button {
+        background-color: #812121;
+        color: white;
+        border: none;
+        margin-top: 200px;
+        padding: 7px 2rem;
+        border-radius: 5px;
+        width: fit-content;
+
+    }
+}
