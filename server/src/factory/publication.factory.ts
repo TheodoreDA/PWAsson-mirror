@@ -6,6 +6,7 @@ export class PublicationFactory extends AFactory<Publication> {
 
   reset(): PublicationFactory {
     this.object = new Publication();
+    this.object.uid = '';
     this.object.title = '';
     this.object.description = '';
     this.object.pictureUid = '';
