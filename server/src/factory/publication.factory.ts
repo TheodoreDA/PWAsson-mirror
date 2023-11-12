@@ -1,5 +1,7 @@
 import { Publication } from 'src/publication/entities/publication.entity';
 import { AFactory } from './AFactory';
+import { User } from 'src/user/entities/user.entity';
+import { Models } from 'node-appwrite';
 
 export class PublicationFactory extends AFactory<Publication> {
   private static _instance: PublicationFactory;
@@ -9,6 +11,7 @@ export class PublicationFactory extends AFactory<Publication> {
     this.object.uid = '';
     this.object.title = '';
     this.object.description = '';
+    this.object.author = undefined;
     this.object.pictureUid = '';
     this.object.likes = 0;
     return this;
@@ -33,6 +36,11 @@ export class PublicationFactory extends AFactory<Publication> {
     return this;
   }
 
+  setAuthor(author: User): PublicationFactory {
+    this.object.author = author;
+    return this;
+  }
+
   setPictureUid(pictureUid: string): PublicationFactory {
     this.object.pictureUid = pictureUid;
     return this;
@@ -41,6 +49,16 @@ export class PublicationFactory extends AFactory<Publication> {
   setLikes(likes: number): PublicationFactory {
     this.object.likes = likes;
     return this;
+  }
+
+  buildfromDoc(doc: Models.Document): Publication {
+    this.setUid(doc['uid']);
+    this.setTitle(doc['title']);
+    this.setDescription(doc['description']);
+    this.setAuthor(doc['author']['uid']);
+    this.setPictureUid(doc['pictureUid']);
+    this.setLikes(doc['likes']);
+    return this.build();
   }
 }
 

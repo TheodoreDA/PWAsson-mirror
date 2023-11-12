@@ -11,7 +11,6 @@ import {
   ParseFilePipe,
   MaxFileSizeValidator,
   FileTypeValidator,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { PublicationService } from './publication.service';
 import { CreatePublicationDto } from './dto/create-publication.dto';
@@ -65,6 +64,11 @@ export class PublicationController {
     return await this.publicationService.findOne(publicationId);
   }
 
+  @Get('picture/:pictureId')
+  async getPicture(@Param('pictureId') pictureId: string) {
+    return await this.publicationService.getPicture(pictureId);
+  }
+
   @UseInterceptors(AccessTokenInterceptor)
   @UseInterceptors(
     FileInterceptor('picture', {
@@ -89,12 +93,10 @@ export class PublicationController {
     picture: Express.Multer.File,
     @Body('payload') payload: Payload,
   ) {
-    if (publicationId != payload.uid) {
-      throw new UnauthorizedException('Only owner can update its publications');
-    }
     return await this.publicationService.update(
       publicationId,
       picture,
+      payload.uid,
       updatePublicationDto,
     );
   }
@@ -105,9 +107,6 @@ export class PublicationController {
     @Param('publicationId') publicationId: string,
     @Body('payload') payload: Payload,
   ) {
-    if (publicationId != payload.uid) {
-      throw new UnauthorizedException('Only owner can remove its publications');
-    }
-    return await this.publicationService.remove(publicationId);
+    return await this.publicationService.remove(publicationId, payload.uid);
   }
 }
