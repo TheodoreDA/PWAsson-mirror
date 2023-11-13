@@ -1,8 +1,12 @@
 import { useState } from "react";
 import './Auth.css';
+import axios from "axios";
+import { redirect, useNavigate } from "react-router-dom";
 
 function Login({ goToRegistration }) {
-    function handleSubmit(e) {
+    const navigate = useNavigate();
+
+    async function handleSubmit(e) {
         e.preventDefault();
 
         const form = e.target;
@@ -10,6 +14,17 @@ function Login({ goToRegistration }) {
 
         const formJson = Object.fromEntries(formData.entries());
         console.log(formJson);
+        try {
+            const response = await axios.post("http://localhost:8080/auth/login", {
+                username: formJson.username,
+                password: formJson.password
+            });
+            console.log(response.data);
+            localStorage.setItem("token", response.data);
+            navigate("/feed");
+        } catch (error) {
+            alert("Username ou passwpord incorrect");
+        }
     }
 
     return (
@@ -26,7 +41,9 @@ function Login({ goToRegistration }) {
 }
 
 function Register({ goToLogin }) {
-    function handleSubmit(e) {
+    const navigate = useNavigate();
+
+    async function handleSubmit(e) {
         e.preventDefault();
 
         const form = e.target;
@@ -34,6 +51,19 @@ function Register({ goToLogin }) {
 
         const formJson = Object.fromEntries(formData.entries());
         console.log(formJson);
+
+        try {
+            const response = await axios.post("http://localhost:8080/auth/register", {
+                username: formJson.username,
+                password: formJson.password
+            });
+            console.log(response.data);
+            localStorage.setItem("token", response.data);
+            navigate("/feed");
+        } catch (error) {
+            alert("User couldn't be created");
+        }
+        
     }
 
     return (

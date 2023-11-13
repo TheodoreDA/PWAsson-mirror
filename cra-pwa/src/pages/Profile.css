@@ -78,6 +78,13 @@
         width: fit-content;
     }
 
+    & .buttonAuth {
+        background-color: #812121;
+        box-sizing: content-box;
+        width: 0%;
+        height: 0%;
+    }
+
     & button {
         background-color: #812121;
         color: white;
@@ -86,6 +93,5 @@
         padding: 7px 2rem;
         border-radius: 5px;
         width: fit-content;
-
     }
 }

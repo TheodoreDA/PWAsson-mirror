@@ -35,7 +35,7 @@ function Feed() {
                 <Link to="/profile" className="username cursor-pointer">{ user }</Link>
             </div>
             <div className="body">
-                <Link to="/" className="new-post cursor-pointer"><MdOutlineAddBox/><h3>Nouveau post</h3></Link>
+                <Link to="/newpost" className="new-post cursor-pointer"><MdOutlineAddBox/><h3>Nouveau post</h3></Link>
                 <ul>{ listItems }</ul>
             </div>
         </div>
