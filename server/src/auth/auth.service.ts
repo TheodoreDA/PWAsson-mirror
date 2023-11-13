@@ -46,15 +46,12 @@ export class AuthService {
     try {
       return await this.jwtService.verifyAsync(token);
     } catch (e) {
-      console.log(e);
       switch (e.message) {
         case 'jwt expired':
           throw new BadRequestException('JWT token expired.');
         case 'jwt must be provided':
           throw new BadRequestException('JWT token must be provided.');
         default:
-          console.log(e.name);
-          console.log(e.message);
           throw new BadRequestException('Unknown Exception.');
       }
     }
@@ -64,7 +61,6 @@ export class AuthService {
     try {
       return await this.jwtService.signAsync(payload);
     } catch (e) {
-      console.log(e);
       throw new BadRequestException('Unknown Exception.');
     }
   }

@@ -2,7 +2,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreatePublicationDto } from './dto/create-publication.dto';
 import { UpdatePublicationDto } from './dto/update-publication.dto';
@@ -10,22 +10,21 @@ import { Publication } from './entities/publication.entity';
 import { publicationFactory } from 'src/factory/publication.factory';
 import { v4 as uuidv4 } from 'uuid';
 import { db, storage } from 'src/database/app.database';
-import { InputFile } from 'node-appwrite';
+import { InputFile, Models } from 'node-appwrite';
 
 @Injectable()
 export class PublicationService {
-  private publications: Publication[] = [];
-
   async create(
     createPublicationDto: CreatePublicationDto,
     picture: Express.Multer.File,
     authorUid: string,
   ) {
+    let doc: Models.Document;
     const pictureUid = uuidv4();
 
     try {
       await storage.createFile(
-        process.env.APPWRITE_BUCKET_ID,
+        'DEV',
         pictureUid,
         InputFile.fromPath(picture.path, picture.originalname),
       );
@@ -40,70 +39,116 @@ export class PublicationService {
       .build();
 
     try {
-      await db.createDocument(
-        process.env.APPWRITE_DATABASE_ID,
-        process.env.APPWRITE_COLLECTION_PUBLICATION_ID,
-        publication.uid,
-        { ...publication.toObject(), author: authorUid },
-      );
+      doc = await db.createDocument('DEV', 'PUBLICATIONS', publication.uid, {
+        ...publication.toObject(),
+        author: authorUid,
+      });
     } catch (e) {
       try {
-        await storage.deleteFile(process.env.APPWRITE_BUCKET_ID, pictureUid);
+        await storage.deleteFile('DEV', pictureUid);
       } catch (e) {
         throw new InternalServerErrorException(e.message);
       }
       throw new BadRequestException(e.message);
     }
-    return publication;
+    return publicationFactory.buildfromDoc(doc);
   }
 
-  findAll() {
-    return this.publications;
-  }
+  async findAll() {
+    let docs: Models.DocumentList<Models.Document>;
 
-  findOne(publicationId: string) {
-    const publication = this.publications.find(
-      (publication) => publication.uid == publicationId,
-    );
-
-    if (publication == undefined)
-      throw new NotFoundException(
-        "Could not find publication with id '" + publicationId + "'",
-      );
-    return publication;
-  }
-
-  // TODO: Check if requesting user is the author
-  update(publicationId: string, updatePublicationDto: UpdatePublicationDto) {
-    const publicationIdx = this.publications.findIndex(
-      (publication) => publication.uid == publicationId,
-    );
-
-    if (publicationIdx == -1) {
-      throw new NotFoundException(
-        "Could not find publication '" + publicationId + "'",
-      );
+    try {
+      docs = await db.listDocuments('DEV', 'PUBLICATIONS');
+    } catch (e) {
+      throw new BadRequestException(e.message);
     }
-    if (updatePublicationDto.title)
-      this.publications[publicationIdx].title = updatePublicationDto.title;
-    if (updatePublicationDto.description) {
-      this.publications[publicationIdx].description =
-        updatePublicationDto.description;
-    }
-    return this.publications[publicationIdx];
+
+    const publications: Publication[] = [];
+
+    docs.documents.forEach((doc: Models.Document) =>
+      publications.push(publicationFactory.buildfromDoc(doc)),
+    );
+    return publications;
   }
 
-  // TODO: Check if requesting user is the author
-  remove(publicationId: string) {
-    const publicationIdx = this.publications.findIndex(
-      (publication) => publication.uid == publicationId,
-    );
+  async findOne(publicationId: string) {
+    let doc: Models.Document;
 
-    if (publicationIdx == -1) {
-      throw new NotFoundException(
-        "Could not find publication '" + publicationId + "'",
-      );
+    try {
+      doc = await db.getDocument('DEV', 'PUBLICATIONS', publicationId);
+    } catch (e) {
+      throw new BadRequestException(e.message);
     }
-    this.publications.splice(publicationIdx, 1);
+
+    return publicationFactory.buildfromDoc(doc);
+  }
+
+  async getPicture(pictureId: string) {
+    try {
+      return storage.getFileView('DEV', pictureId);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  async update(
+    publicationId: string,
+    picture: Express.Multer.File,
+    connectedUserUid: string,
+    updatePublicationDto: UpdatePublicationDto,
+  ) {
+    let doc: Models.Document;
+    const publication = await this.findOne(publicationId);
+
+    if (publication.author.toString() != connectedUserUid)
+      throw new UnauthorizedException('Only owner can update its publications');
+
+    if (picture != undefined || picture != null) {
+      const pictureUid = uuidv4();
+
+      try {
+        await storage.createFile(
+          'DEV',
+          pictureUid,
+          InputFile.fromPath(picture.path, picture.originalname),
+        );
+      } catch (e) {
+        throw new BadRequestException(e.message);
+      }
+      publication.pictureUid = pictureUid;
+    }
+    publication.title = updatePublicationDto.title;
+    publication.description = updatePublicationDto.description;
+
+    try {
+      doc = await db.updateDocument(
+        'DEV',
+        'PUBLICATIONS',
+        publicationId,
+        publication,
+      );
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+
+    return publicationFactory.buildfromDoc(doc);
+  }
+
+  async remove(publicationId: string, connectedUserUid: string) {
+    const publication = await this.findOne(publicationId);
+
+    if (publication.author.toString() != connectedUserUid)
+      throw new UnauthorizedException('Only owner can update its publications');
+
+    try {
+      await db.deleteDocument('DEV', 'USERS', publicationId);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+    try {
+      await storage.deleteFile('DEV', publication.pictureUid);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 }
