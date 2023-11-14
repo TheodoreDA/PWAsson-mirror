@@ -141,7 +141,7 @@ export class PublicationService {
       throw new UnauthorizedException('Only owner can update its publications');
 
     try {
-      await db.deleteDocument('DEV', 'USERS', publicationId);
+      await db.deleteDocument('DEV', 'PUBLICATIONS', publicationId);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
