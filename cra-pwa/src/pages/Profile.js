@@ -67,6 +67,35 @@ const Notifications = () => {
     }
 }
 
+const WebPushNotifications = () => {
+    const [webPushNotification, setWebPushNotification] = useState(true);
+    useEffect(() => {
+        // check if the user allow or not the webpushnotification
+    });
+
+    if (webPushNotification) {
+        return (
+            <>
+                <p> Remove webpush notification </p>
+                <button onClick={() => {setWebPushNotification(false)}}> Remove </button>
+            </>
+        )
+    } else {
+        return (
+            <>
+                <p>
+                    Hey I need you permission to send you some webpush notification
+                </p>
+                <button
+                onClick={() => {setWebPushNotification(true)}}
+                    >
+                Validate
+                </button>
+            </>
+        )
+    }
+}
+
 function Profile () {
     const [username, setUsername] = useState();
     const token = localStorage.getItem("token");
@@ -94,6 +123,7 @@ function Profile () {
                         <h3>{localStorage.getItem("username")}</h3>
                     </div>
                     <Notifications />
+                    <WebPushNotifications />
                     </div>
                 <button type='submit'>Se déconnecter</button>
             </div>
