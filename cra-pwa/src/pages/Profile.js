@@ -5,6 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import './Profile.css';
 import { FaCpanel } from "react-icons/fa";
+import notificationLogo from "../assets/instagram.png"
 
 function Profile() {
     const [username, setUsername] = useState();
