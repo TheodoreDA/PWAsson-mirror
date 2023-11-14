@@ -1,5 +1,8 @@
 import { IoIosChatbubbles } from "react-icons/io";
 import { MdOutlineAddBox } from "react-icons/md";
+import { useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 import { BiSolidCommentDetail } from "react-icons/bi";
 import { FaHeart } from "react-icons/fa";
 import './Feed.css';
@@ -7,36 +10,68 @@ import { Link } from "react-router-dom";
 
 function ListItem(props) {
     return <li className="cursor-pointer">
-        <p>{ props.post.user }</p>
-        <p className="time">{ props.post.time }</p>
-        <p>{ props.post.title }</p>
-        <img src={props.post.img} alt={ props.post.title }/>
+        <p>{props.post.user}</p>
+        <p>{props.post.title}</p>
+        <img src={`data:image/png;base64,${props.post.image}`} alt="helloworld" />
+        <p className="time">{props.post.description}</p>
         <div className="social">
-            <div><BiSolidCommentDetail/> { props.post.commentsNbr }</div>
-            <div><FaHeart/> { props.post.likesNbr }</div>
+            {/* <div><BiSolidCommentDetail /> {props.post.commentsNbr}</div> */}
+            <div><FaHeart /> {props.post.likes}</div>
         </div>
     </li>;
 }
 
 function Feed() {
-    const posts = [
-        { id: 1, user: "Ashmoore", title: "Regardez ma chèvre, elle est trop belle", time: "il y a 1 heure", img: "https://encrypted-tbn1.gstatic.com/licensed-image?q=tbn:ANd9GcQ_roUCfAO8PBWPLvOM-DrYsUboxcf3tgMobBtqKqviYGRIiwpy0AW5BNBfDOe4JbKcjMFT8zsgA5bQcFU", commentsNbr: 1000, likesNbr: 1000 },
-        { id: 2, user: "Skeuuuuuuuuure", title: "Regardez mon bison, elle est trop belle", time: "il y a 20 années", img: "https://images.unsplash.com/photo-1513735539099-cf6e5d559d82?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGFub3JhbWF8ZW58MHx8MHx8fDA%3D&w=1000&q=80", commentsNbr: 1000, likesNbr: 1000 },
-        { id: 3, user: "Arcyrr", title: "J'adore les castors", time: "il y a 21 années et 2 secondes", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb0m10tc32EKEiEcwcVnEh-UavZhDTULwp2A&usqp=CAU", commentsNbr: "1M", likesNbr: "1M" }
-    ];
-    const user = "Mr Poulpe";
-    const listItems = posts.map((post) => <ListItem key={post.id} post={post}/>);
+    const [postArray, setPostArray] = useState([]);
+    const [username, setUsername] = useState();
+    const token = localStorage.getItem("token");
+    const jwtToken = jwtDecode(token)
+    const userId = jwtToken.uid;
+
+    useEffect(() => {
+        async function fetchData() {
+            const responseUsername = await axios.get(`http://localhost:8080/user/${userId}`);
+            setUsername(responseUsername.data?.username);
+            localStorage.setItem("username", responseUsername.data?.username);
+            const response = await axios.get(`http://localhost:8080/publication`);
+            let tmpPostArray = [];
+            for (let i = 0; i < response.data.length; i++) {
+                let tmp = {};
+                Object.assign(tmp,
+                    {
+                        title: response.data[i]?.title,
+                        description: response.data[i]?.description,
+                        author: response.data[i]?.author,
+                        pictureUid: response.data[i]?.pictureUid,
+                        likes: response.data[i]?.likes,
+                    });
+                const responsePircture = await axios.get(`http://localhost:8080/publication/picture/${tmp.pictureUid}`);
+                const base64String = btoa(String.fromCharCode(...new Uint8Array(responsePircture.data?.data)));
+                console.log(responsePircture.data?.data);
+                Object.assign(tmp, { image: base64String });
+                const responseUser = await axios.get(`http://localhost:8080/user/${tmp.author}`);
+                const author = responseUser.data?.username;
+                Object.assign(tmp, { user: author });
+                tmpPostArray.push(tmp);
+            }
+            setPostArray(tmpPostArray);
+        }
+        fetchData();
+        console.log(postArray);
+    }, [])
+
+    const listItems = postArray.map((post) => <ListItem key={post.id} post={post} />);
 
     return (
         <div className="Feed">
             <div className="header">
-                <Link to="/messages"><IoIosChatbubbles className="icon cursor-pointer"/></Link>
+                <Link to="/messages"><IoIosChatbubbles className="icon cursor-pointer" /></Link>
                 <h1>Dernières publications</h1>
-                <Link to="/profile" className="username cursor-pointer">{ user }</Link>
+                <Link to="/profile" className="username cursor-pointer">{localStorage.getItem("username") ? localStorage.getItem("username") : username}</Link>
             </div>
             <div className="body">
-                <Link to="/newpost" className="new-post cursor-pointer"><MdOutlineAddBox/><h3>Nouveau post</h3></Link>
-                <ul>{ listItems }</ul>
+                <Link to="/newpost" className="new-post cursor-pointer"><MdOutlineAddBox /><h3>Nouveau post</h3></Link>
+                <ul>{listItems}</ul>
             </div>
         </div>
     );
