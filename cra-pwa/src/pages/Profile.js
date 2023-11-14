@@ -4,9 +4,6 @@ import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import './Profile.css';
-import { FaCpanel } from "react-icons/fa";
-import notificationLogo from "../assets/instagram.png"
-import { useEffect, useState } from "react";
 import notificationLogo from "../assets/instagram.png"
 
 const Notifications = () => {
