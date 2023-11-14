@@ -1,9 +1,9 @@
 import {
-  BadRequestException,
   CallHandler,
   ExecutionContext,
   Injectable,
   NestInterceptor,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
@@ -30,7 +30,7 @@ export class AccessTokenInterceptor implements NestInterceptor {
       !request.headers.authorization ||
       !request.headers.authorization.startsWith('Bearer ')
     )
-      throw new BadRequestException('JWT token must be provided.');
+      throw new UnauthorizedException('JWT token must be provided.');
     const token = request.headers.authorization.substring(7);
 
     try {
@@ -39,7 +39,7 @@ export class AccessTokenInterceptor implements NestInterceptor {
       });
       request.body.payload = payload;
     } catch (e) {
-      throw new BadRequestException(e.message ?? 'JWT exception');
+      throw new UnauthorizedException(e.message ?? 'JWT exception');
     }
     return next.handle();
   }
