@@ -30,7 +30,7 @@ function Profile() {
                 <div>
                     <div>
                         <label>Nom d'utilisateur : </label>
-                        <h3>{username}</h3>
+                        <h3>{localStorage.getItem("username")}</h3>
                     </div>
                     <div>
                         <label>Notifications : </label>
