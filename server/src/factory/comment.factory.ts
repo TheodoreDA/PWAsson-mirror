@@ -1,7 +1,5 @@
 import { Comment } from 'src/comment/entities/comment.entity';
 import { AFactory } from './AFactory';
-import { User } from 'src/user/entities/user.entity';
-import { Publication } from 'src/publication/entities/publication.entity';
 import { Models } from 'node-appwrite';
 
 export class CommentFactory extends AFactory<Comment> {
@@ -9,12 +7,7 @@ export class CommentFactory extends AFactory<Comment> {
 
   reset(): CommentFactory {
     this.object = new Comment();
-    this.object.uid = '';
-    this.object.publication = undefined;
-    this.object.content = '';
-    this.object.author = undefined;
-    this.object.likes = 0;
-    this.object.createdAt = undefined;
+    this.object.likesUid = [];
     return this;
   }
 
@@ -27,8 +20,8 @@ export class CommentFactory extends AFactory<Comment> {
     return this;
   }
 
-  setPublication(publication: Publication): CommentFactory {
-    this.object.publication = publication;
+  setPublicationUid(publicationUid: string): CommentFactory {
+    this.object.publicationUid = publicationUid;
     return this;
   }
 
@@ -37,13 +30,13 @@ export class CommentFactory extends AFactory<Comment> {
     return this;
   }
 
-  setAuthor(author: User): CommentFactory {
-    this.object.author = author;
+  setAuthorUid(authorUid: string): CommentFactory {
+    this.object.authorUid = authorUid;
     return this;
   }
 
-  setLikes(likes: number): CommentFactory {
-    this.object.likes = likes;
+  setLikesUid(likesUid: string[]): CommentFactory {
+    this.object.likesUid = likesUid;
     return this;
   }
 
@@ -52,12 +45,12 @@ export class CommentFactory extends AFactory<Comment> {
     return this;
   }
 
-  buildfromDoc(doc: Models.Document): Comment {
+  buildFromDoc(doc: Models.Document): Comment {
     this.setUid(doc['uid']);
-    this.setPublication(doc['publication']['uid']);
+    this.setPublicationUid(doc['publicationUid']);
     this.setContent(doc['content']);
-    this.setAuthor(doc['author']['uid']);
-    this.setLikes(doc['likes']);
+    this.setAuthorUid(doc['authorUid']);
+    this.setLikesUid(doc['likesUid']);
     this.setCreatedAt(new Date(doc['createdAt']));
     return this.build();
   }
