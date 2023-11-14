@@ -1,21 +1,18 @@
-import { User } from 'src/user/entities/user.entity';
-import { Publication } from 'src/publication/entities/publication.entity';
-
 export class Comment {
   uid: string;
-  publication: Publication;
+  publicationUid: string;
   content: string;
-  author: User;
-  likes: number;
+  authorUid: string;
+  likesUid: string[];
   createdAt: Date;
 
   toObject(): object {
     return {
       uid: this.uid,
-      publication: this.publication?.uid ?? undefined,
+      publicationUid: this.publicationUid,
       content: this.content,
-      author: this.author?.uid ?? undefined,
-      likes: this.likes,
+      authorUid: this.authorUid,
+      likesUid: this.likesUid,
       createdAt: this.createdAt,
     };
   }
