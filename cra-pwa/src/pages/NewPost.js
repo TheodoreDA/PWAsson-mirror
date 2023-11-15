@@ -2,9 +2,12 @@ import { useState } from 'react'
 import { IoMdArrowBack } from 'react-icons/io'
 import { Link } from 'react-router-dom'
 import axios from "axios";
+import { redirect, useNavigate } from "react-router-dom";
 import './NewPost.css'
 
 function NewPost() {
+    const navigate = useNavigate();
+
     const [title, setTitle] = useState('')
     const [imagePreview, setImagePreview] = useState(null)
     const [description, setDescription] = useState('')
@@ -16,6 +19,7 @@ function NewPost() {
         setFile(fileTmp);
         setImagePreview(URL.createObjectURL(fileTmp))
     }
+
     async function handleSubmit(e) {
         e.preventDefault()
 
@@ -30,6 +34,7 @@ function NewPost() {
                     "Authorization": `Bearer ${localStorage.getItem("token")}`,
                 }
             });
+            navigate("/feed");
         } catch (error) {
             alert("Couldn't create this post");
         }

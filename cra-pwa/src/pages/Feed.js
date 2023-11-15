@@ -9,14 +9,14 @@ import './Feed.css';
 import { Link } from "react-router-dom";
 
 function ListItem(props) {
-    return <li className="cursor-pointer">
+    return <li className="cursor-pointer" key={props.post.uid}>
         <p>{props.post.user}</p>
         <p>{props.post.title}</p>
         <img src={`data:image/png;base64,${props.post.image}`} alt="helloworld" />
         <p className="time">{props.post.description}</p>
         <div className="social">
-            {/* <div><BiSolidCommentDetail /> {props.post.commentsNbr}</div> */}
             <div><FaHeart /> {props.post.likes}</div>
+            <Link to="/post" className="linkComment" state={{ post: props.post }}><BiSolidCommentDetail /></Link>
         </div>
     </li>;
 }
@@ -29,38 +29,41 @@ function Feed() {
     const userId = jwtToken.uid;
 
     useEffect(() => {
+        console.log("beziaoziaojizojiojzaiaz");
         async function fetchData() {
-            const responseUsername = await axios.get(`http://localhost:8080/user/${userId}`);
-            setUsername(responseUsername.data?.username);
-            localStorage.setItem("username", responseUsername.data?.username);
+            if (localStorage.getItem("username")) {
+                const responseUsername = await axios.get(`http://localhost:8080/user/${userId}`);
+                setUsername(responseUsername.data?.username);
+                localStorage.setItem("username", responseUsername.data?.username);
+            }
             const response = await axios.get(`http://localhost:8080/publication`);
             let tmpPostArray = [];
             for (let i = 0; i < response.data.length; i++) {
                 let tmp = {};
                 Object.assign(tmp,
                     {
+                        uid: response.data[i]?.uid,
                         title: response.data[i]?.title,
                         description: response.data[i]?.description,
                         author: response.data[i]?.author,
                         pictureUid: response.data[i]?.pictureUid,
-                        likes: response.data[i]?.likes,
+                        likes: response.data[i]?.likes
                     });
                 const responsePircture = await axios.get(`http://localhost:8080/publication/picture/${tmp.pictureUid}`);
                 const base64String = btoa(String.fromCharCode(...new Uint8Array(responsePircture.data?.data)));
-                console.log(responsePircture.data?.data);
                 Object.assign(tmp, { image: base64String });
                 const responseUser = await axios.get(`http://localhost:8080/user/${tmp.author}`);
                 const author = responseUser.data?.username;
                 Object.assign(tmp, { user: author });
                 tmpPostArray.push(tmp);
+                console.log(tmp.uid);
             }
             setPostArray(tmpPostArray);
         }
         fetchData();
-        console.log(postArray);
     }, [])
 
-    const listItems = postArray.map((post) => <ListItem key={post.id} post={post} />);
+    const listItems = postArray.map((post) => <ListItem key={post.uid} post={post} />);
 
     return (
         <div className="Feed">
