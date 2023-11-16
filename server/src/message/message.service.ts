@@ -53,12 +53,13 @@ export class MessageService {
     return messageBuilder.buildFromDoc(doc);
   }
 
-  async findAll(connectedUserUid: string, chatId: string) {
+  async findAll(connectedUserUid: string, chatId: string, offset: number) {
     let docs: Models.DocumentList<Models.Document>;
 
     try {
       docs = await db.listDocuments('DEV', 'MESSAGES', [
         Query.equal('chatUid', chatId),
+        Query.offset(offset),
       ]);
     } catch (e) {
       throw new NotFoundException(e.message);

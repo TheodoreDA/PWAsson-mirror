@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -28,8 +29,11 @@ export class CommentController {
   }
 
   @Get('/:publicationId')
-  async findAll(@Param('publicationId') publicationId: string) {
-    return await this.commentService.findAll(publicationId);
+  async findAll(
+    @Query('offset') offset = 0,
+    @Param('publicationId') publicationId: string,
+  ) {
+    return await this.commentService.findAll(publicationId, offset);
   }
 
   @Get('/one/:commentId')
