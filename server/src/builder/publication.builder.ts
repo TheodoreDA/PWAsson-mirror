@@ -1,46 +1,46 @@
 import { Publication } from 'src/publication/entities/publication.entity';
-import { AFactory } from './AFactory';
+import { ABuilder } from './ABuilder';
 import { Models } from 'node-appwrite';
 
-export class PublicationFactory extends AFactory<Publication> {
-  private static _instance: PublicationFactory;
+export class PublicationBuilder extends ABuilder<Publication> {
+  private static _instance: PublicationBuilder;
 
-  reset(): PublicationFactory {
+  reset(): PublicationBuilder {
     this.object = new Publication();
     this.object.likesUid = [];
     return this;
   }
 
-  public static getInstance(): PublicationFactory {
+  public static getInstance(): PublicationBuilder {
     return this._instance || (this._instance = new this());
   }
 
-  setUid(uid: string): PublicationFactory {
+  setUid(uid: string): PublicationBuilder {
     this.object.uid = uid;
     return this;
   }
 
-  setTitle(title: string): PublicationFactory {
+  setTitle(title: string): PublicationBuilder {
     this.object.title = title;
     return this;
   }
 
-  setDescription(description: string): PublicationFactory {
+  setDescription(description: string): PublicationBuilder {
     this.object.description = description;
     return this;
   }
 
-  setAuthorUid(authorUid: string): PublicationFactory {
+  setAuthorUid(authorUid: string): PublicationBuilder {
     this.object.authorUid = authorUid;
     return this;
   }
 
-  setPictureUid(pictureUid: string): PublicationFactory {
+  setPictureUid(pictureUid: string): PublicationBuilder {
     this.object.pictureUid = pictureUid;
     return this;
   }
 
-  setLikesUid(likesUid: string[]): PublicationFactory {
+  setLikesUid(likesUid: string[]): PublicationBuilder {
     this.object.likesUid = likesUid;
     return this;
   }
@@ -56,6 +56,6 @@ export class PublicationFactory extends AFactory<Publication> {
   }
 }
 
-const publicationFactory = PublicationFactory.getInstance();
+const publicationBuilder = PublicationBuilder.getInstance();
 
-export { publicationFactory };
+export { publicationBuilder };

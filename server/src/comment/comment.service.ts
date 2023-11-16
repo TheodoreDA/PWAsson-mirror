@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { commentFactory } from 'src/factory/comment.factory';
+import { commentBuilder } from 'src/builder/comment.builder';
 import { v4 as uuidv4 } from 'uuid';
 import { DB_ID, db } from 'src/database/app.database';
 import { Models, Query } from 'node-appwrite';
@@ -28,7 +28,7 @@ export class CommentService {
     }
 
     // build local object
-    const comment = commentFactory
+    const comment = commentBuilder
       .setUid(uuidv4())
       .setPublicationUid(createCommentDto.publicationUid)
       .setContent(createCommentDto.content)
@@ -43,7 +43,7 @@ export class CommentService {
       throw new BadRequestException(e.message);
     }
 
-    return commentFactory.buildFromDoc(doc);
+    return commentBuilder.buildFromDoc(doc);
   }
 
   async findAll(publicationId: string) {
@@ -57,7 +57,7 @@ export class CommentService {
       throw new BadRequestException(e.message);
     }
 
-    return commentFactory.buildFromDocs(docs);
+    return commentBuilder.buildFromDocs(docs);
   }
 
   async findOne(commentId: string) {
@@ -69,7 +69,7 @@ export class CommentService {
       throw new BadRequestException(e.message);
     }
 
-    return commentFactory.buildFromDoc(doc);
+    return commentBuilder.buildFromDoc(doc);
   }
 
   async update(
@@ -92,7 +92,7 @@ export class CommentService {
       throw new BadRequestException(e.message);
     }
 
-    return commentFactory.buildFromDoc(doc);
+    return commentBuilder.buildFromDoc(doc);
   }
 
   async remove(commentId: string, connectedUserUid: string) {

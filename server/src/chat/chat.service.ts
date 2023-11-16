@@ -7,7 +7,7 @@ import {
 import { CreateChatDto } from './dto/create-chat.dto';
 import { db } from 'src/database/app.database';
 import { v4 as uuidv4 } from 'uuid';
-import { chatFactory } from 'src/factory/chat.factory';
+import { chatBuilder } from 'src/builder/chat.builder';
 import { Query } from 'appwrite';
 import { Models } from 'node-appwrite';
 
@@ -37,7 +37,7 @@ export class ChatService {
       createChatDto.usersUid.push(connectedUserUid);
 
     // build local object
-    const chat = chatFactory
+    const chat = chatBuilder
       .setUid(uuidv4())
       .setUsersUid(createChatDto.usersUid)
       .build();
@@ -51,7 +51,7 @@ export class ChatService {
       throw new BadRequestException(e.message);
     }
 
-    return chatFactory.buildFromDoc(doc);
+    return chatBuilder.buildFromDoc(doc);
   }
 
   async findAll(connectedUserUid: string) {
@@ -65,8 +65,7 @@ export class ChatService {
       throw new NotFoundException(e.message);
     }
 
-    // TODO: refactor this with buildFromDocs
-    return docs.documents.map((doc) => chatFactory.buildFromDoc(doc));
+    return chatBuilder.buildFromDocs(docs);
   }
 
   async findOne(connectedUserUid: string, chatId: string) {
@@ -78,7 +77,7 @@ export class ChatService {
       throw new NotFoundException(e.message);
     }
 
-    const chat = chatFactory.buildFromDoc(doc);
+    const chat = chatBuilder.buildFromDoc(doc);
 
     if (!chat.usersUid.includes(connectedUserUid)) {
       throw new UnauthorizedException(
@@ -97,7 +96,7 @@ export class ChatService {
       throw new NotFoundException(e.message);
     }
 
-    const chat = chatFactory.buildFromDoc(doc);
+    const chat = chatBuilder.buildFromDoc(doc);
     if (!chat.usersUid.includes(connectedUserUid)) {
       throw new UnauthorizedException(
         'Only participants can leave their conversations.',

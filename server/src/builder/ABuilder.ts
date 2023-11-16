@@ -1,14 +1,14 @@
 import { Models } from 'node-appwrite';
-import { IFactory } from './IFactory';
+import { IBuilder } from './IBuilder';
 
-export abstract class AFactory<T> implements IFactory<T> {
+export abstract class ABuilder<T> implements IBuilder<T> {
   protected object: T;
 
   protected constructor() {
     this.reset();
   }
 
-  abstract reset(): IFactory<T>;
+  abstract reset(): IBuilder<T>;
 
   build(): T {
     const object = this.object;
