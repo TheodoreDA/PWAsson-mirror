@@ -3,40 +3,46 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
-import { UpdateChatDto } from './dto/update-chat.dto';
+import { AccessTokenInterceptor } from 'src/interceptor/token.interceptor';
+import { Payload } from 'src/auth/dto/payload';
 
+@UseInterceptors(AccessTokenInterceptor)
 @Controller('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   @Post()
-  create(@Body() createChatDto: CreateChatDto) {
-    return this.chatService.create(createChatDto);
+  async create(
+    @Body() createChatDto: CreateChatDto,
+    @Body('payload') payload: Payload,
+  ) {
+    return await this.chatService.create(payload.uid, createChatDto);
   }
 
   @Get()
-  findAll() {
-    return this.chatService.findAll();
+  async getAllConversations(@Body('payload') payload: Payload) {
+    return await this.chatService.findAll(payload.uid);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.chatService.findOne(+id);
+  @Get(':chatId')
+  async findOne(
+    @Param('chatId') chatId: string,
+    @Body('payload') payload: Payload,
+  ) {
+    return await this.chatService.findOne(payload.uid, chatId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateChatDto: UpdateChatDto) {
-    return this.chatService.update(+id, updateChatDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.chatService.remove(+id);
+  @Delete(':chatId')
+  async remove(
+    @Param('chatId') chatId: string,
+    @Body('payload') payload: Payload,
+  ) {
+    return await this.chatService.remove(payload.uid, chatId);
   }
 }
