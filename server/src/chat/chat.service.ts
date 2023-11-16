@@ -51,7 +51,7 @@ export class ChatService {
       throw new BadRequestException(e.message);
     }
 
-    return chatFactory.buildfromDoc(doc);
+    return chatFactory.buildFromDoc(doc);
   }
 
   async findAll(connectedUserUid: string) {
@@ -65,8 +65,8 @@ export class ChatService {
       throw new NotFoundException(e.message);
     }
 
-    // TODO: refactor this with buildfromDocs
-    return docs.documents.map((doc) => chatFactory.buildfromDoc(doc));
+    // TODO: refactor this with buildFromDocs
+    return docs.documents.map((doc) => chatFactory.buildFromDoc(doc));
   }
 
   async findOne(connectedUserUid: string, chatId: string) {
@@ -78,7 +78,7 @@ export class ChatService {
       throw new NotFoundException(e.message);
     }
 
-    const chat = chatFactory.buildfromDoc(doc);
+    const chat = chatFactory.buildFromDoc(doc);
 
     if (!chat.usersUid.includes(connectedUserUid)) {
       throw new UnauthorizedException(
@@ -97,7 +97,7 @@ export class ChatService {
       throw new NotFoundException(e.message);
     }
 
-    const chat = chatFactory.buildfromDoc(doc);
+    const chat = chatFactory.buildFromDoc(doc);
     if (!chat.usersUid.includes(connectedUserUid)) {
       throw new UnauthorizedException(
         'Only participants can leave their conversations.',
