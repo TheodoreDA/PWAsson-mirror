@@ -19,7 +19,7 @@ export class ChatService {
     // check if users exist
     try {
       for (let i = 0; i < createChatDto.usersUid.length; i++) {
-        doc = await db.getDocument('DEV', 'USERS', createChatDto.usersUid[i], [
+        await db.getDocument('DEV', 'USERS', createChatDto.usersUid[i], [
           Query.select(['uid']),
         ]);
       }
@@ -44,9 +44,7 @@ export class ChatService {
 
     // save it in database
     try {
-      doc = await db.createDocument('DEV', 'CHATS', chat.uid, {
-        ...chat.toObject(),
-      });
+      doc = await db.createDocument('DEV', 'CHATS', chat.uid, chat);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
@@ -81,7 +79,7 @@ export class ChatService {
 
     if (!chat.usersUid.includes(connectedUserUid)) {
       throw new UnauthorizedException(
-        'Only participants can retreive their conversations.',
+        'Only participants can retreive their chats.',
       );
     }
     return chat;
@@ -99,18 +97,25 @@ export class ChatService {
     const chat = chatBuilder.buildFromDoc(doc);
     if (!chat.usersUid.includes(connectedUserUid)) {
       throw new UnauthorizedException(
-        'Only participants can leave their conversations.',
+        'Only participants can leave their chats.',
       );
     }
 
     if (chat.usersUid.length == 1) {
-      // TODO: delete all messages
+      // Delete all messages of chat
+      for (let i = 0; i < chat.messagesUid.length; i++) {
+        try {
+          await db.deleteDocument('DEV', 'MESSAGES', chat.messagesUid[i]);
+        } catch {}
+      }
+      // Delete chat
       try {
         await db.deleteDocument('DEV', 'CHATS', chatId);
       } catch (e) {
         throw new BadRequestException(e.message);
       }
     } else {
+      // Remove connected user from chat
       delete chat.usersUid[chat.usersUid.indexOf(connectedUserUid)];
       try {
         await db.updateDocument('DEV', 'CHATS', chatId, chat);

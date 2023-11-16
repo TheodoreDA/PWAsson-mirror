@@ -26,7 +26,7 @@ export class ChatController {
   }
 
   @Get()
-  async getAllConversations(@Body('payload') payload: Payload) {
+  async getAll(@Body('payload') payload: Payload) {
     return await this.chatService.findAll(payload.uid);
   }
 
