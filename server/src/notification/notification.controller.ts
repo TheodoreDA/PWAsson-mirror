@@ -17,4 +17,16 @@ import { AccessTokenInterceptor } from 'src/interceptor/token.interceptor';
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
+  @UseInterceptors(AccessTokenInterceptor)
+  @Post("acceptNotification")
+  acceptNotification(@Body() test: any) {
+    console.log(test);
+    // return this.notificationService.acceptNotification(acceptNotificationDto);
+  }
+
+  @UseInterceptors(AccessTokenInterceptor)
+  @Post("revokeNotification")
+  revokeNotification() {
+
+  }
 }
