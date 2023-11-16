@@ -20,14 +20,13 @@ function sendSubscriptionToServer(subscription) {
 function App() {
     return (
         <Routes>
-
-        <Route path="/" element={<div> <p>home</p> </div>} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/feed" element={<Feed />} />
-        <Route path="/post" element={<Post />} />
-        <Route path="/messages" element={<Messages />} />
-        <Route path="/newpost" element={<NewPost />} />
-        <Route path="/profile" element={<Profile />} />
+            <Route path="/" element={<div> <p>home</p> </div>} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/feed" element={<Feed />} />
+            <Route path="/post" element={<Post />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/newpost" element={<NewPost />} />
+            <Route path="/profile" element={<Profile />} />
         </Routes>
     );
 }
