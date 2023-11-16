@@ -70,6 +70,15 @@ export class PublicationController {
   }
 
   @UseInterceptors(AccessTokenInterceptor)
+  @Patch('like_unlike/:publicationId')
+  async likeUnlike(
+    @Param('publicationId') publicationId: string,
+    @Body('payload') payload: Payload,
+  ) {
+    return await this.publicationService.likeUnlike(payload.uid, publicationId);
+  }
+
+  @UseInterceptors(AccessTokenInterceptor)
   @UseInterceptors(
     FileInterceptor('picture', {
       storage: diskStorage({
