@@ -3,7 +3,7 @@ import { Client, Databases, Storage } from 'node-appwrite';
 let client: Client = null;
 let db: Databases = null;
 let storage: Storage = null;
-const DB_ID = 'TEST01';
+const DB_ID = 'DEV';
 
 function InitAppWriteClient(): void {
   client = new Client();

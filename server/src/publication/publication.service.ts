@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreatePublicationDto } from './dto/create-publication.dto';
 import { UpdatePublicationDto } from './dto/update-publication.dto';
-import { publicationFactory } from 'src/factory/publication.factory';
+import { publicationBuilder } from 'src/builder/publication.builder';
 import { v4 as uuidv4 } from 'uuid';
 import { DB_ID, db, storage } from 'src/database/app.database';
 import { InputFile, Models } from 'node-appwrite';
@@ -30,7 +30,7 @@ export class PublicationService {
     } catch (e) {
       throw new BadRequestException(e.message);
     }
-    const publication = publicationFactory
+    const publication = publicationBuilder
       .setUid(uuidv4())
       .setTitle(createPublicationDto.title)
       .setDescription(createPublicationDto.description)
@@ -53,7 +53,7 @@ export class PublicationService {
       }
       throw new BadRequestException(e.message);
     }
-    return publicationFactory.buildFromDoc(doc);
+    return publicationBuilder.buildFromDoc(doc);
   }
 
   async findAll() {
@@ -65,7 +65,7 @@ export class PublicationService {
       throw new BadRequestException(e.message);
     }
 
-    return publicationFactory.buildFromDocs(docs);
+    return publicationBuilder.buildFromDocs(docs);
   }
 
   async findOne(publicationId: string) {
@@ -77,7 +77,7 @@ export class PublicationService {
       throw new BadRequestException(e.message);
     }
 
-    return publicationFactory.buildFromDoc(doc);
+    return publicationBuilder.buildFromDoc(doc);
   }
 
   async getPicture(pictureId: string) {
@@ -128,7 +128,7 @@ export class PublicationService {
       throw new BadRequestException(e.message);
     }
 
-    return publicationFactory.buildFromDoc(doc);
+    return publicationBuilder.buildFromDoc(doc);
   }
 
   async remove(publicationId: string, connectedUserUid: string) {
