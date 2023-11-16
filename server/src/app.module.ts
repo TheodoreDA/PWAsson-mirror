@@ -7,6 +7,7 @@ import { ChatModule } from './chat/chat.module';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
 import { JwtModule } from '@nestjs/jwt';
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { JwtModule } from '@nestjs/jwt';
     PublicationModule,
     CommentModule,
     ChatModule,
+    MessageModule,
     AdminModule,
   ],
 })

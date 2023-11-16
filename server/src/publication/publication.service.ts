@@ -6,10 +6,9 @@ import {
 } from '@nestjs/common';
 import { CreatePublicationDto } from './dto/create-publication.dto';
 import { UpdatePublicationDto } from './dto/update-publication.dto';
-import { Publication } from './entities/publication.entity';
-import { publicationFactory } from 'src/factory/publication.factory';
+import { publicationBuilder } from 'src/builder/publication.builder';
 import { v4 as uuidv4 } from 'uuid';
-import { db, storage } from 'src/database/app.database';
+import { DB_ID, db, storage } from 'src/database/app.database';
 import { InputFile, Models } from 'node-appwrite';
 
 @Injectable()
@@ -24,68 +23,66 @@ export class PublicationService {
 
     try {
       await storage.createFile(
-        'DEV',
+        DB_ID,
         pictureUid,
         InputFile.fromPath(picture.path, picture.originalname),
       );
     } catch (e) {
       throw new BadRequestException(e.message);
     }
-    const publication = publicationFactory
+    const publication = publicationBuilder
       .setUid(uuidv4())
       .setTitle(createPublicationDto.title)
       .setDescription(createPublicationDto.description)
+      .setAuthorUid(authorUid)
       .setPictureUid(pictureUid)
       .build();
 
     try {
-      doc = await db.createDocument('DEV', 'PUBLICATIONS', publication.uid, {
-        ...publication.toObject(),
-        author: authorUid,
-      });
+      doc = await db.createDocument(
+        DB_ID,
+        'PUBLICATIONS',
+        publication.uid,
+        publication,
+      );
     } catch (e) {
       try {
-        await storage.deleteFile('DEV', pictureUid);
+        await storage.deleteFile(DB_ID, pictureUid);
       } catch (e) {
         throw new InternalServerErrorException(e.message);
       }
       throw new BadRequestException(e.message);
     }
-    return publicationFactory.buildfromDoc(doc);
+    return publicationBuilder.buildFromDoc(doc);
   }
 
   async findAll() {
     let docs: Models.DocumentList<Models.Document>;
 
     try {
-      docs = await db.listDocuments('DEV', 'PUBLICATIONS');
+      docs = await db.listDocuments(DB_ID, 'PUBLICATIONS');
     } catch (e) {
       throw new BadRequestException(e.message);
     }
 
-    const publications: Publication[] = [];
-
-    docs.documents.forEach((doc: Models.Document) =>
-      publications.push(publicationFactory.buildfromDoc(doc)),
-    );
-    return publications;
+    return publicationBuilder.buildFromDocs(docs);
   }
 
   async findOne(publicationId: string) {
     let doc: Models.Document;
 
     try {
-      doc = await db.getDocument('DEV', 'PUBLICATIONS', publicationId);
+      doc = await db.getDocument(DB_ID, 'PUBLICATIONS', publicationId);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
 
-    return publicationFactory.buildfromDoc(doc);
+    return publicationBuilder.buildFromDoc(doc);
   }
 
   async getPicture(pictureId: string) {
     try {
-      return storage.getFileView('DEV', pictureId);
+      return storage.getFileView(DB_ID, pictureId);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
@@ -100,7 +97,7 @@ export class PublicationService {
     let doc: Models.Document;
     const publication = await this.findOne(publicationId);
 
-    if (publication.author.toString() != connectedUserUid)
+    if (publication.authorUid != connectedUserUid)
       throw new UnauthorizedException('Only owner can update its publications');
 
     if (picture != undefined || picture != null) {
@@ -108,7 +105,7 @@ export class PublicationService {
 
       try {
         await storage.createFile(
-          'DEV',
+          DB_ID,
           pictureUid,
           InputFile.fromPath(picture.path, picture.originalname),
         );
@@ -122,7 +119,7 @@ export class PublicationService {
 
     try {
       doc = await db.updateDocument(
-        'DEV',
+        DB_ID,
         'PUBLICATIONS',
         publicationId,
         publication,
@@ -131,22 +128,22 @@ export class PublicationService {
       throw new BadRequestException(e.message);
     }
 
-    return publicationFactory.buildfromDoc(doc);
+    return publicationBuilder.buildFromDoc(doc);
   }
 
   async remove(publicationId: string, connectedUserUid: string) {
     const publication = await this.findOne(publicationId);
 
-    if (publication.author.toString() != connectedUserUid)
+    if (publication.authorUid != connectedUserUid)
       throw new UnauthorizedException('Only owner can update its publications');
 
     try {
-      await db.deleteDocument('DEV', 'PUBLICATIONS', publicationId);
+      await db.deleteDocument(DB_ID, 'PUBLICATIONS', publicationId);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
     try {
-      await storage.deleteFile('DEV', publication.pictureUid);
+      await storage.deleteFile(DB_ID, publication.pictureUid);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
