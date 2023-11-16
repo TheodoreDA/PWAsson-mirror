@@ -47,12 +47,13 @@ export class CommentService {
     return commentBuilder.buildFromDoc(doc);
   }
 
-  async findAll(publicationId: string) {
+  async findAll(publicationId: string, offset: number) {
     let docs: Models.DocumentList<Models.Document>;
 
     try {
       docs = await db.listDocuments(DB_ID, 'COMMENTS', [
         Query.equal('publicationUid', publicationId),
+        Query.offset(offset),
       ]);
     } catch (e) {
       throw new BadRequestException(e.message);
