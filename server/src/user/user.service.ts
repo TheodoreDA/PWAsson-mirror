@@ -24,7 +24,7 @@ export class UserService {
         Query.equal('username', createUserDto.username),
       ]);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
     if (docs.total != 0) {
       throw new BadRequestException(
@@ -42,7 +42,7 @@ export class UserService {
     try {
       doc = await db.createDocument(DB_ID, 'USERS', user.uid, user);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
     return userBuilder.buildFromDoc(doc);
   }
@@ -53,7 +53,7 @@ export class UserService {
     try {
       docs = await db.listDocuments(DB_ID, 'USERS');
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
 
     return userBuilder.buildFromDocs(docs);
@@ -65,7 +65,7 @@ export class UserService {
     try {
       doc = await db.getDocument(DB_ID, 'USERS', userId);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new NotFoundException(e.message);
     }
 
     return userBuilder.buildFromDoc(doc);
@@ -79,7 +79,7 @@ export class UserService {
         Query.equal('username', username),
       ]);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
 
     if (docs.total == 0) {
@@ -107,7 +107,7 @@ export class UserService {
     try {
       doc = await db.updateDocument(DB_ID, 'USERS', userId, user);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
 
     return userBuilder.buildFromDoc(doc);
@@ -117,7 +117,7 @@ export class UserService {
     try {
       await db.deleteDocument(DB_ID, 'USERS', userId);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new NotFoundException(e.message);
     }
   }
 }

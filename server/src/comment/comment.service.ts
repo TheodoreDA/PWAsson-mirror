@@ -41,22 +41,22 @@ export class CommentService {
     try {
       doc = await db.createDocument(DB_ID, 'COMMENTS', comment.uid, comment);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
 
     return commentBuilder.buildFromDoc(doc);
   }
 
-  async findAll(publicationId: string, offset: number) {
+  async findAll(publicationId: string, pages: number) {
     let docs: Models.DocumentList<Models.Document>;
 
     try {
       docs = await db.listDocuments(DB_ID, 'COMMENTS', [
         Query.equal('publicationUid', publicationId),
-        Query.offset(offset),
+        Query.offset(pages),
       ]);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
 
     return commentBuilder.buildFromDocs(docs);
@@ -68,7 +68,7 @@ export class CommentService {
     try {
       doc = await db.getDocument(DB_ID, 'COMMENTS', commentId);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new NotFoundException(e.message);
     }
 
     return commentBuilder.buildFromDoc(doc);
@@ -80,7 +80,9 @@ export class CommentService {
     try {
       doc = await db.getDocument(DB_ID, 'USERS', connectedUserUid);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      if (e.message == 'Document with the requested ID could not be found.')
+        throw new NotFoundException('Could not find the connected user.');
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
 
     const user = userBuilder.buildFromDoc(doc);
@@ -88,7 +90,9 @@ export class CommentService {
     try {
       doc = await db.getDocument(DB_ID, 'COMMENTS', commentId);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      if (e.message == 'Document with the requested ID could not be found.')
+        throw new NotFoundException('Could not find the comment.');
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
 
     const comment = commentBuilder.buildFromDoc(doc);
@@ -99,11 +103,15 @@ export class CommentService {
     ) {
       // Remove comment from user's likes
       if (user.commentsLikedUid.indexOf(commentId) != -1) {
-        delete user.commentsLikedUid[user.commentsLikedUid.indexOf(commentId)];
+        user.commentsLikedUid = user.commentsLikedUid.filter(
+          (uid) => uid != commentId,
+        );
       }
       // Remove user from comment's likes
       if (comment.likesUid.indexOf(connectedUserUid) != -1) {
-        delete comment.likesUid[comment.likesUid.indexOf(connectedUserUid)];
+        comment.likesUid = comment.likesUid.filter(
+          (uid) => uid != connectedUserUid,
+        );
       }
     } else {
       user.commentsLikedUid.push(commentId);
@@ -135,7 +143,7 @@ export class CommentService {
     try {
       doc = await db.updateDocument(DB_ID, 'COMMENTS', commentId, comment);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
 
     return commentBuilder.buildFromDoc(doc);
@@ -145,12 +153,12 @@ export class CommentService {
     const comment = await this.findOne(commentId);
 
     if (comment.authorUid != connectedUserUid)
-      throw new UnauthorizedException('Only owner can update its comments');
+      throw new UnauthorizedException('Only owners can update their comments');
 
     try {
       await db.deleteDocument(DB_ID, 'COMMENTS', commentId);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
   }
 }

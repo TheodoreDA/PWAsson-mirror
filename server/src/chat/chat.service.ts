@@ -31,7 +31,9 @@ export class ChatService {
       createChatDto.usersUid.length == 1 &&
       createChatDto.usersUid[0] == connectedUserUid
     ) {
-      throw new BadRequestException('Cannot create chat with only one user.');
+      throw new BadRequestException(
+        'Cannot create chat with only the connected user.',
+      );
     }
     if (!createChatDto.usersUid.includes(connectedUserUid))
       createChatDto.usersUid.push(connectedUserUid);
@@ -46,7 +48,7 @@ export class ChatService {
     try {
       doc = await db.createDocument('DEV', 'CHATS', chat.uid, chat);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
 
     return chatBuilder.buildFromDoc(doc);
@@ -60,7 +62,7 @@ export class ChatService {
         Query.search('usersUid', connectedUserUid),
       ]);
     } catch (e) {
-      throw new NotFoundException(e.message);
+      throw new NotFoundException('UnknownException: ' + e.message);
     }
 
     return chatBuilder.buildFromDocs(docs);
@@ -112,15 +114,15 @@ export class ChatService {
       try {
         await db.deleteDocument('DEV', 'CHATS', chatId);
       } catch (e) {
-        throw new BadRequestException(e.message);
+        throw new BadRequestException('UnknownException: ' + e.message);
       }
     } else {
       // Remove connected user from chat
-      delete chat.usersUid[chat.usersUid.indexOf(connectedUserUid)];
+      chat.usersUid = chat.usersUid.filter((uid) => uid != connectedUserUid);
       try {
         await db.updateDocument('DEV', 'CHATS', chatId, chat);
       } catch (e) {
-        throw new BadRequestException(e.message);
+        throw new BadRequestException('UnknownException: ' + e.message);
       }
     }
   }
