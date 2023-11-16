@@ -38,6 +38,15 @@ export class CommentController {
   }
 
   @UseInterceptors(AccessTokenInterceptor)
+  @Patch('like_unlike/:commentId')
+  async likeUnlike(
+    @Param('commentId') commentId: string,
+    @Body('payload') payload: Payload,
+  ) {
+    return await this.commentService.likeUnlike(payload.uid, commentId);
+  }
+
+  @UseInterceptors(AccessTokenInterceptor)
   @Patch(':commentId')
   async update(
     @Param('commentId') commentId: string,

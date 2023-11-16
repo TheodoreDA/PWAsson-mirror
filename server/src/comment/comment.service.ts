@@ -10,6 +10,7 @@ import { commentBuilder } from 'src/builder/comment.builder';
 import { v4 as uuidv4 } from 'uuid';
 import { DB_ID, db } from 'src/database/app.database';
 import { Models, Query } from 'node-appwrite';
+import { userBuilder } from 'src/builder/user.builder';
 
 @Injectable()
 export class CommentService {
@@ -70,6 +71,50 @@ export class CommentService {
     }
 
     return commentBuilder.buildFromDoc(doc);
+  }
+
+  async likeUnlike(connectedUserUid: string, commentId: string) {
+    let doc: Models.Document;
+
+    try {
+      doc = await db.getDocument(DB_ID, 'USERS', connectedUserUid);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+
+    const user = userBuilder.buildFromDoc(doc);
+
+    try {
+      doc = await db.getDocument(DB_ID, 'COMMENTS', commentId);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+
+    const comment = commentBuilder.buildFromDoc(doc);
+
+    if (
+      user.commentsLikedUid.includes(commentId) ||
+      comment.likesUid.includes(connectedUserUid)
+    ) {
+      // Remove comment from user's likes
+      if (user.commentsLikedUid.indexOf(commentId) != -1) {
+        delete user.commentsLikedUid[user.commentsLikedUid.indexOf(commentId)];
+      }
+      // Remove user from comment's likes
+      if (comment.likesUid.indexOf(connectedUserUid) != -1) {
+        delete comment.likesUid[comment.likesUid.indexOf(connectedUserUid)];
+      }
+    } else {
+      user.commentsLikedUid.push(commentId);
+      comment.likesUid.push(connectedUserUid);
+    }
+
+    try {
+      doc = await db.updateDocument(DB_ID, 'USERS', connectedUserUid, user);
+      doc = await db.updateDocument(DB_ID, 'COMMENTS', commentId, comment);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
   async update(

@@ -11,6 +11,7 @@ export class UserBuilder extends ABuilder<User> {
     this.object.role = 'user';
     this.object.publicationsUid = [];
     this.object.publicationsLikedUid = [];
+    this.object.commentsLikedUid = [];
     return this;
   }
 
@@ -48,6 +49,11 @@ export class UserBuilder extends ABuilder<User> {
     return this;
   }
 
+  setCommentsLikedUid(commentsLikedUid: string[]): UserBuilder {
+    this.object.commentsLikedUid = commentsLikedUid;
+    return this;
+  }
+
   buildFromDoc(doc: Models.Document): User {
     this.setUid(doc['uid']);
     this.setUsername(doc['username']);
@@ -55,6 +61,7 @@ export class UserBuilder extends ABuilder<User> {
     this.setRole(doc['role']);
     this.setPublicationsUid(doc['publicationsUid']);
     this.setPublicationsLikedUid(doc['publicationsLikedUid']);
+    this.setCommentsLikedUid(doc['commentsLikedUid']);
     return this.build();
   }
 }

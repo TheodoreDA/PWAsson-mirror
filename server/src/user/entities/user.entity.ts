@@ -7,6 +7,7 @@ export class User {
   role: Role;
   publicationsUid: string[];
   publicationsLikedUid: string[];
+  commentsLikedUid: string[];
 
   toObject(): object {
     return {
@@ -16,6 +17,7 @@ export class User {
       role: this.role,
       publicationsUid: this.publicationsUid,
       publicationsLikedUid: this.publicationsLikedUid,
+      commentsLikedUid: this.commentsLikedUid,
     };
   }
 }
