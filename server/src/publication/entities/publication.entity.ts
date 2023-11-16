@@ -1,21 +1,19 @@
-import { User } from 'src/user/entities/user.entity';
-
 export class Publication {
   uid: string;
   title: string;
   description: string;
-  author: User;
+  authorUid: string;
   pictureUid: string;
-  likes: number;
+  likesUid: string[];
 
   toObject(): object {
     return {
       uid: this.uid,
       title: this.title,
       description: this.description,
-      author: this.author?.uid ?? undefined,
+      authorUid: this.authorUid,
       pictureUid: this.pictureUid,
-      likes: this.likes,
+      likesUid: this.likesUid,
     };
   }
 }
