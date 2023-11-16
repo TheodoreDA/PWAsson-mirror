@@ -1,4 +1,3 @@
-import { Publication } from 'src/publication/entities/publication.entity';
 import { Role } from './role';
 
 export class User {
@@ -6,8 +5,8 @@ export class User {
   username: string;
   hash: string;
   role: Role;
-  publications: Publication[];
-  publicationsLiked: Publication[];
+  publicationsUid: string[];
+  publicationsLikedUid: string[];
 
   toObject(): object {
     return {
@@ -15,8 +14,8 @@ export class User {
       username: this.username,
       hash: this.hash,
       role: this.role,
-      publications: this.publications.map((pub) => pub.uid),
-      publicationsLiked: this.publicationsLiked.map((pub) => pub.uid),
+      publicationsUid: this.publicationsUid,
+      publicationsLikedUid: this.publicationsLikedUid,
     };
   }
 }

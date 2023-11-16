@@ -6,10 +6,9 @@ import {
 } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { Comment } from './entities/comment.entity';
 import { commentFactory } from 'src/factory/comment.factory';
 import { v4 as uuidv4 } from 'uuid';
-import { db } from 'src/database/app.database';
+import { DB_ID, db } from 'src/database/app.database';
 import { Models, Query } from 'node-appwrite';
 
 @Injectable()
@@ -20,7 +19,7 @@ export class CommentService {
     // check if publication exists
     try {
       await db.getDocument(
-        'DEV',
+        DB_ID,
         'PUBLICATIONS',
         createCommentDto.publicationUid,
       );
@@ -31,54 +30,46 @@ export class CommentService {
     // build local object
     const comment = commentFactory
       .setUid(uuidv4())
+      .setPublicationUid(createCommentDto.publicationUid)
       .setContent(createCommentDto.content)
-      .setLikes(0)
+      .setAuthorUid(authorUid)
       .setCreatedAt(new Date())
       .build();
 
     // save it in database
     try {
-      doc = await db.createDocument('DEV', 'COMMENTS', comment.uid, {
-        ...comment.toObject(),
-        publication: createCommentDto.publicationUid,
-        author: authorUid,
-      });
+      doc = await db.createDocument(DB_ID, 'COMMENTS', comment.uid, comment);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
 
-    return commentFactory.buildfromDoc(doc);
+    return commentFactory.buildFromDoc(doc);
   }
 
   async findAll(publicationId: string) {
     let docs: Models.DocumentList<Models.Document>;
 
     try {
-      docs = await db.listDocuments('DEV', 'COMMENTS', [
-        Query.equal('publication', publicationId),
+      docs = await db.listDocuments(DB_ID, 'COMMENTS', [
+        Query.equal('publicationUid', publicationId),
       ]);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
 
-    const comments: Comment[] = [];
-
-    docs.documents.forEach((doc: Models.Document) =>
-      comments.push(commentFactory.buildfromDoc(doc)),
-    );
-    return comments;
+    return commentFactory.buildFromDocs(docs);
   }
 
   async findOne(commentId: string) {
     let doc: Models.Document;
 
     try {
-      doc = await db.getDocument('DEV', 'COMMENTS', commentId);
+      doc = await db.getDocument(DB_ID, 'COMMENTS', commentId);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
 
-    return commentFactory.buildfromDoc(doc);
+    return commentFactory.buildFromDoc(doc);
   }
 
   async update(
@@ -89,28 +80,29 @@ export class CommentService {
     let doc: Models.Document;
     const comment = await this.findOne(commentId);
 
-    if (comment.author.toString() != connectedUserUid)
+    if (comment.authorUid != connectedUserUid)
       throw new UnauthorizedException('Only owner can update its comments');
+
     comment.content = updateCommentDto.content;
     comment.createdAt = new Date();
 
     try {
-      doc = await db.updateDocument('DEV', 'COMMENTS', commentId, comment);
+      doc = await db.updateDocument(DB_ID, 'COMMENTS', commentId, comment);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
 
-    return commentFactory.buildfromDoc(doc);
+    return commentFactory.buildFromDoc(doc);
   }
 
   async remove(commentId: string, connectedUserUid: string) {
     const comment = await this.findOne(commentId);
 
-    if (comment.author.toString() != connectedUserUid)
+    if (comment.authorUid != connectedUserUid)
       throw new UnauthorizedException('Only owner can update its comments');
 
     try {
-      await db.deleteDocument('DEV', 'COMMENTS', commentId);
+      await db.deleteDocument(DB_ID, 'COMMENTS', commentId);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
