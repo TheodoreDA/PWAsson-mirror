@@ -11,6 +11,7 @@ import {
   ParseFilePipe,
   MaxFileSizeValidator,
   FileTypeValidator,
+  Query,
 } from '@nestjs/common';
 import { PublicationService } from './publication.service';
 import { CreatePublicationDto } from './dto/create-publication.dto';
@@ -55,8 +56,8 @@ export class PublicationController {
   }
 
   @Get()
-  async findAll() {
-    return await this.publicationService.findAll();
+  async findAll(@Query('offset') offset = 0) {
+    return await this.publicationService.findAll(offset);
   }
 
   @Get(':publicationId')

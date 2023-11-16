@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DB_ID, db, storage } from 'src/database/app.database';
 import { InputFile, Models } from 'node-appwrite';
 import { userBuilder } from 'src/builder/user.builder';
+import { Query } from 'appwrite';
 
 @Injectable()
 export class PublicationService {
@@ -57,11 +58,13 @@ export class PublicationService {
     return publicationBuilder.buildFromDoc(doc);
   }
 
-  async findAll() {
+  async findAll(offset: number) {
     let docs: Models.DocumentList<Models.Document>;
 
     try {
-      docs = await db.listDocuments(DB_ID, 'PUBLICATIONS');
+      docs = await db.listDocuments(DB_ID, 'PUBLICATIONS', [
+        Query.offset(offset),
+      ]);
     } catch (e) {
       throw new BadRequestException(e.message);
     }

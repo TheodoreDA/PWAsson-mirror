@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -28,9 +29,10 @@ export class MessageController {
   @Get(':chatId')
   async getAll(
     @Param('chatId') chatId: string,
+    @Query('offset') offset = 0,
     @Body('payload') payload: Payload,
   ) {
-    return await this.messageService.findAll(payload.uid, chatId);
+    return await this.messageService.findAll(payload.uid, chatId, offset);
   }
 
   @Get('one/:messageId')
