@@ -9,6 +9,7 @@ import { AdminModule } from './admin/admin.module';
 import { JwtModule } from '@nestjs/jwt';
 import { NotificationModule } from './notification/notification.module';
 import { MessageModule } from './message/message.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
