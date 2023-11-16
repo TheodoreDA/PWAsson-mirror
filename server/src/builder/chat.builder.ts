@@ -1,11 +1,11 @@
 import { Chat } from 'src/chat/entities/chat.entity';
-import { AFactory } from './AFactory';
+import { ABuilder } from './ABuilder';
 import { Models } from 'node-appwrite';
 
-export class ChatFactory extends AFactory<Chat> {
-  private static _instance: ChatFactory;
+export class ChatBuilder extends ABuilder<Chat> {
+  private static _instance: ChatBuilder;
 
-  reset(): ChatFactory {
+  reset(): ChatBuilder {
     this.object = new Chat();
     this.object.uid = '';
     this.object.usersUid = [];
@@ -13,21 +13,21 @@ export class ChatFactory extends AFactory<Chat> {
     return this;
   }
 
-  public static getInstance(): ChatFactory {
+  public static getInstance(): ChatBuilder {
     return this._instance || (this._instance = new this());
   }
 
-  setUid(uid: string): ChatFactory {
+  setUid(uid: string): ChatBuilder {
     this.object.uid = uid;
     return this;
   }
 
-  setUsersUid(usersUid: string[]): ChatFactory {
+  setUsersUid(usersUid: string[]): ChatBuilder {
     this.object.usersUid = usersUid;
     return this;
   }
 
-  setMessagesUid(messagesUid: string[]): ChatFactory {
+  setMessagesUid(messagesUid: string[]): ChatBuilder {
     this.object.messagesUid = messagesUid;
     return this;
   }
@@ -40,6 +40,6 @@ export class ChatFactory extends AFactory<Chat> {
   }
 }
 
-const chatFactory = ChatFactory.getInstance();
+const chatBuilder = ChatBuilder.getInstance();
 
-export { chatFactory };
+export { chatBuilder };

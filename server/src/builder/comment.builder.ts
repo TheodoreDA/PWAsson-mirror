@@ -1,46 +1,46 @@
 import { Comment } from 'src/comment/entities/comment.entity';
-import { AFactory } from './AFactory';
+import { ABuilder } from './ABuilder';
 import { Models } from 'node-appwrite';
 
-export class CommentFactory extends AFactory<Comment> {
-  private static _instance: CommentFactory;
+export class CommentBuilder extends ABuilder<Comment> {
+  private static _instance: CommentBuilder;
 
-  reset(): CommentFactory {
+  reset(): CommentBuilder {
     this.object = new Comment();
     this.object.likesUid = [];
     return this;
   }
 
-  public static getInstance(): CommentFactory {
+  public static getInstance(): CommentBuilder {
     return this._instance || (this._instance = new this());
   }
 
-  setUid(uid: string): CommentFactory {
+  setUid(uid: string): CommentBuilder {
     this.object.uid = uid;
     return this;
   }
 
-  setPublicationUid(publicationUid: string): CommentFactory {
+  setPublicationUid(publicationUid: string): CommentBuilder {
     this.object.publicationUid = publicationUid;
     return this;
   }
 
-  setContent(content: string): CommentFactory {
+  setContent(content: string): CommentBuilder {
     this.object.content = content;
     return this;
   }
 
-  setAuthorUid(authorUid: string): CommentFactory {
+  setAuthorUid(authorUid: string): CommentBuilder {
     this.object.authorUid = authorUid;
     return this;
   }
 
-  setLikesUid(likesUid: string[]): CommentFactory {
+  setLikesUid(likesUid: string[]): CommentBuilder {
     this.object.likesUid = likesUid;
     return this;
   }
 
-  setCreatedAt(createdAt: Date): CommentFactory {
+  setCreatedAt(createdAt: Date): CommentBuilder {
     this.object.createdAt = createdAt;
     return this;
   }
@@ -56,6 +56,6 @@ export class CommentFactory extends AFactory<Comment> {
   }
 }
 
-const commentFactory = CommentFactory.getInstance();
+const commentBuilder = CommentBuilder.getInstance();
 
-export { commentFactory };
+export { commentBuilder };

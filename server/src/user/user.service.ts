@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { userFactory } from 'src/factory/user.factory';
+import { userBuilder } from 'src/builder/user.builder';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { DB_ID, db } from 'src/database/app.database';
@@ -33,7 +33,7 @@ export class UserService {
     }
 
     createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
-    const user = userFactory
+    const user = userBuilder
       .setUid(uuidv4())
       .setUsername(createUserDto.username)
       .setHash(createUserDto.password)
@@ -44,7 +44,7 @@ export class UserService {
     } catch (e) {
       throw new BadRequestException(e.message);
     }
-    return userFactory.buildFromDoc(doc);
+    return userBuilder.buildFromDoc(doc);
   }
 
   async findAll(): Promise<User[]> {
@@ -56,7 +56,7 @@ export class UserService {
       throw new BadRequestException(e.message);
     }
 
-    return userFactory.buildFromDocs(docs);
+    return userBuilder.buildFromDocs(docs);
   }
 
   async findOne(userId: string): Promise<User> {
@@ -68,7 +68,7 @@ export class UserService {
       throw new BadRequestException(e.message);
     }
 
-    return userFactory.buildFromDoc(doc);
+    return userBuilder.buildFromDoc(doc);
   }
 
   async findByUsername(username: string): Promise<User> {
@@ -93,7 +93,7 @@ export class UserService {
       );
     }
 
-    return userFactory.buildFromDoc(docs.documents[0]);
+    return userBuilder.buildFromDoc(docs.documents[0]);
   }
 
   async update(userId: string, updateUserDto: UpdateUserDto): Promise<User> {
@@ -110,7 +110,7 @@ export class UserService {
       throw new BadRequestException(e.message);
     }
 
-    return userFactory.buildFromDoc(doc);
+    return userBuilder.buildFromDoc(doc);
   }
 
   async remove(userId: string): Promise<void> {
