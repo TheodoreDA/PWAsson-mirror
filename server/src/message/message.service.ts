@@ -21,13 +21,13 @@ export class MessageService {
     try {
       doc = await db.getDocument('DEV', 'CHATS', createMessageDto.chatUid);
     } catch (e) {
-      throw new NotFoundException('Could not find user.');
+      throw new NotFoundException('Could not find the chat.');
     }
 
     const chat = chatBuilder.buildFromDoc(doc);
 
     if (!chat.usersUid.includes(connectedUserUid)) {
-      throw new BadRequestException(
+      throw new UnauthorizedException(
         'Connected user has to be a participant of the chat.',
       );
     }
@@ -47,22 +47,22 @@ export class MessageService {
       doc = await db.createDocument('DEV', 'MESSAGES', message.uid, message);
       await db.updateDocument('DEV', 'CHATS', chat.uid, chat);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
 
     return messageBuilder.buildFromDoc(doc);
   }
 
-  async findAll(connectedUserUid: string, chatId: string, offset: number) {
+  async findAll(connectedUserUid: string, chatId: string, pages: number) {
     let docs: Models.DocumentList<Models.Document>;
 
     try {
       docs = await db.listDocuments('DEV', 'MESSAGES', [
         Query.equal('chatUid', chatId),
-        Query.offset(offset),
+        Query.offset(pages),
       ]);
     } catch (e) {
-      throw new NotFoundException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
 
     return messageBuilder.buildFromDocs(docs);
@@ -102,22 +102,26 @@ export class MessageService {
       throw new UnauthorizedException('Only owner can delete their messages.');
 
     try {
-      doc = await db.getDocument('DEV', 'CHATS', message.chatUid);
+      await db.deleteDocument('DEV', 'MESSAGES', messageId);
     } catch (e) {
-      throw new NotFoundException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
+    }
+
+    try {
+      doc = await db.getDocument('DEV', 'CHATS', message.chatUid);
+    } catch {
+      return;
     }
 
     const chat = chatBuilder.buildFromDoc(doc);
 
-    if (!chat.messagesUid.includes(messageId))
-      throw new BadRequestException('Message does not belong to the chat.');
+    if (!chat.messagesUid.includes(messageId)) return;
 
-    delete chat.messagesUid[chat.messagesUid.indexOf(messageId)];
+    chat.messagesUid = chat.messagesUid.filter((uid) => uid != messageId);
     try {
-      await db.deleteDocument('DEV', 'MESSAGES', messageId);
       await db.updateDocument('DEV', 'CHATS', message.chatUid, chat);
-    } catch (e) {
-      throw new BadRequestException(e.message);
+    } catch {
+      return;
     }
   }
 }

@@ -21,7 +21,7 @@ export class AuthService {
     const user = await this.userService.findByUsername(loginDto.username);
 
     if (!(await bcrypt.compare(loginDto.password, user.hash)))
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Wrong password or username.');
 
     const payload: Payload = {
       uid: user.uid,

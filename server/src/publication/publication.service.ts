@@ -1,7 +1,7 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreatePublicationDto } from './dto/create-publication.dto';
@@ -30,7 +30,7 @@ export class PublicationService {
         InputFile.fromPath(picture.path, picture.originalname),
       );
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
     const publication = publicationBuilder
       .setUid(uuidv4())
@@ -51,22 +51,22 @@ export class PublicationService {
       try {
         await storage.deleteFile(DB_ID, pictureUid);
       } catch (e) {
-        throw new InternalServerErrorException(e.message);
+        throw new BadRequestException('UnknownException: ' + e.message);
       }
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
     return publicationBuilder.buildFromDoc(doc);
   }
 
-  async findAll(offset: number) {
+  async findAll(pages: number) {
     let docs: Models.DocumentList<Models.Document>;
 
     try {
       docs = await db.listDocuments(DB_ID, 'PUBLICATIONS', [
-        Query.offset(offset),
+        Query.offset(pages),
       ]);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
 
     return publicationBuilder.buildFromDocs(docs);
@@ -78,7 +78,7 @@ export class PublicationService {
     try {
       doc = await db.getDocument(DB_ID, 'PUBLICATIONS', publicationId);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
 
     return publicationBuilder.buildFromDoc(doc);
@@ -88,7 +88,7 @@ export class PublicationService {
     try {
       return storage.getFileView(DB_ID, pictureId);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new NotFoundException(e.message);
     }
   }
 
@@ -98,8 +98,7 @@ export class PublicationService {
     try {
       doc = await db.getDocument(DB_ID, 'USERS', connectedUserUid);
     } catch (e) {
-      console.log('user: ', connectedUserUid);
-      throw new BadRequestException(e.message);
+      throw new NotFoundException(e.message);
     }
 
     const user = userBuilder.buildFromDoc(doc);
@@ -107,8 +106,7 @@ export class PublicationService {
     try {
       doc = await db.getDocument(DB_ID, 'PUBLICATIONS', publicationId);
     } catch (e) {
-      console.log('publication');
-      throw new BadRequestException(e.message);
+      throw new NotFoundException(e.message);
     }
 
     const publication = publicationBuilder.buildFromDoc(doc);
@@ -116,15 +114,15 @@ export class PublicationService {
     if (user.publicationsLikedUid.includes(publicationId)) {
       // Remove publication from user's likes
       if (user.publicationsLikedUid.indexOf(publicationId) != -1) {
-        delete user.publicationsLikedUid[
-          user.publicationsLikedUid.indexOf(publicationId)
-        ];
+        user.publicationsLikedUid = user.publicationsLikedUid.filter(
+          (uid) => uid != publicationId,
+        );
       }
       // Remove user from publication's likes
       if (publication.likesUid.indexOf(connectedUserUid) != -1) {
-        delete publication.likesUid[
-          publication.likesUid.indexOf(connectedUserUid)
-        ];
+        publication.likesUid = publication.likesUid.filter(
+          (uid) => uid != connectedUserUid,
+        );
       }
     } else {
       user.publicationsLikedUid.push(publicationId);
@@ -140,7 +138,7 @@ export class PublicationService {
         publication,
       );
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
   }
 
@@ -153,8 +151,11 @@ export class PublicationService {
     let doc: Models.Document;
     const publication = await this.findOne(publicationId);
 
-    if (publication.authorUid != connectedUserUid)
-      throw new UnauthorizedException('Only owner can update its publications');
+    if (publication.authorUid != connectedUserUid) {
+      throw new UnauthorizedException(
+        'Only owners can update their publications',
+      );
+    }
 
     if (picture != undefined || picture != null) {
       const pictureUid = uuidv4();
@@ -165,8 +166,9 @@ export class PublicationService {
           pictureUid,
           InputFile.fromPath(picture.path, picture.originalname),
         );
+        await storage.deleteFile(DB_ID, publication.pictureUid);
       } catch (e) {
-        throw new BadRequestException(e.message);
+        throw new BadRequestException('UnknownException: ' + e.message);
       }
       publication.pictureUid = pictureUid;
     }
@@ -181,7 +183,7 @@ export class PublicationService {
         publication,
       );
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
 
     return publicationBuilder.buildFromDoc(doc);
@@ -190,18 +192,21 @@ export class PublicationService {
   async remove(publicationId: string, connectedUserUid: string) {
     const publication = await this.findOne(publicationId);
 
-    if (publication.authorUid != connectedUserUid)
-      throw new UnauthorizedException('Only owner can update its publications');
+    if (publication.authorUid != connectedUserUid) {
+      throw new UnauthorizedException(
+        'Only owners can update their publications',
+      );
+    }
 
     try {
       await db.deleteDocument(DB_ID, 'PUBLICATIONS', publicationId);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new BadRequestException('UnknownException: ' + e.message);
     }
     try {
       await storage.deleteFile(DB_ID, publication.pictureUid);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new NotFoundException('UnknownException: ' + e.message);
     }
   }
 }
