@@ -32,7 +32,7 @@ export class ChatFactory extends AFactory<Chat> {
     return this;
   }
 
-  buildfromDoc(doc: Models.Document): Chat {
+  buildFromDoc(doc: Models.Document): Chat {
     this.setUid(doc['uid']);
     this.setUsersUid(doc['usersUid']);
     this.setMessagesUid(doc['messagesUid']);
