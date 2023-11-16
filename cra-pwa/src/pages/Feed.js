@@ -45,14 +45,14 @@ function Feed() {
                         uid: response.data[i]?.uid,
                         title: response.data[i]?.title,
                         description: response.data[i]?.description,
-                        author: response.data[i]?.author,
+                        authorUid: response.data[i]?.authorUid,
                         pictureUid: response.data[i]?.pictureUid,
-                        likes: response.data[i]?.likes
+                        likesUid: response.data[i]?.likesUid
                     });
                 const responsePircture = await axios.get(`http://localhost:8080/publication/picture/${tmp.pictureUid}`);
                 const base64String = btoa(String.fromCharCode(...new Uint8Array(responsePircture.data?.data)));
                 Object.assign(tmp, { image: base64String });
-                const responseUser = await axios.get(`http://localhost:8080/user/${tmp.author}`);
+                const responseUser = await axios.get(`http://localhost:8080/user/${tmp.authorUid}`);
                 const author = responseUser.data?.username;
                 Object.assign(tmp, { user: author });
                 tmpPostArray.push(tmp);

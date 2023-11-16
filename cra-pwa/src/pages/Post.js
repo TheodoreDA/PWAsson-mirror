@@ -12,7 +12,7 @@ function Comment(props) {
         <div>{props.comment.user} <p className="time">{props.comment.formattedDate}</p></div>
         <div>
             <p>{props.comment.content}</p>
-            <div className="social-sm"><FaHeart /> {props.comment.likes}</div>
+            <div className="social-sm"><FaHeart /> {props.comment.likesUid.length}</div>
         </div>
     </li>;
 }
@@ -30,8 +30,6 @@ function Post() {
         // timeZoneName: 'short'
     };
 
-    console.log(state.post);
-
     useEffect(() => {
         async function fetchData() {
             const response = await axios.get(`http://localhost:8080/comment/${state.post.uid}`);
@@ -42,11 +40,11 @@ function Post() {
                     {
                         uid: response.data[i]?.uid,
                         content: response.data[i]?.content,
-                        author: response.data[i]?.author,
-                        likes: response.data[i]?.likes,
+                        authorUid: response.data[i]?.authorUid,
+                        likesUid: response.data[i]?.likesUid,
                         createdAt: response.data[i]?.createdAt,
                     });
-                const responseAuthor = await axios.get(`http://localhost:8080/user/${tmpComment.author}`)
+                const responseAuthor = await axios.get(`http://localhost:8080/user/${tmpComment.authorUid}`)
                 const user = responseAuthor.data?.username;
                 Object.assign(tmpComment, { user: user });
                 const date = new Date(tmpComment.createdAt);
@@ -57,11 +55,10 @@ function Post() {
             }
             setCommentArray(tmpCommentArray);
         }
-        console.log(commentArray);
         fetchData();
     }, [])
 
-    const post = { id: state.post.uid, user: state.post.user, title: state.post.title, img: state.post.image, commentsNbr: commentArray.length, likesNbr: state.post.likes };
+    const post = { id: state.post.uid, user: state.post.user, title: state.post.title, img: state.post.image, commentsNbr: commentArray.length, likesNbr: state.post.likesUid.length };
 
     const commentsList = commentArray.map((comment, index) => <Comment key={"comment-" + index} comment={comment} />);
 
