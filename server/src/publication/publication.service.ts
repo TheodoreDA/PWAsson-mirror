@@ -94,9 +94,9 @@ export class PublicationService {
 
   async getPicture(pictureId: string) {
     try {
-      return storage.getFileView(DB_ID, pictureId);
+      return await storage.getFileView(DB_ID, pictureId);
     } catch (e) {
-      throw new NotFoundException(e.message);
+      throw new NotFoundException('File not found');
     }
   }
 

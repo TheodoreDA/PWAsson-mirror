@@ -22,14 +22,21 @@ export class NotificationService {
       process.env.PRIVATE_VAPID_KEY,
     );
 
-    webpush.sendNotification({
-      endpoint: user.endpoint,
-      expirationTime: user.expirationTime,
-      keys: {
-        p256dh: user.p256dh,
-        auth: user.auth,
-      }
-    }, JSON.stringify(payload));
+    try {
+      webpush.sendNotification(
+        {
+          endpoint: user.endpoint,
+          expirationTime: user.expirationTime,
+          keys: {
+            p256dh: user.p256dh,
+            auth: user.auth,
+          },
+        },
+        JSON.stringify(payload),
+      );
+    } catch (e) {
+      console.log('Could not send notification to: ', user.username);
+    }
   }
 
   async acceptNotification(acceptNotificationDto: AcceptNotificationDto, uid: string) {
