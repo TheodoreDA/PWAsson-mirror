@@ -99,6 +99,11 @@ export class NotificationService {
         });
       }
     })
-      
+  }
+
+  async isUserNotifAllowed(uid: string) {
+    const user = await this.userService.findOne(uid);
+
+    return user.isNotifAllowed;
   }
 }

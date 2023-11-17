@@ -60,14 +60,19 @@ export class UserService {
   }
 
   async findOne(userId: string): Promise<User> {
+    console.log(userId);
     let doc: Models.Document;
-
+    
     try {
       doc = await db.getDocument(DB_ID, 'USERS', userId);
+      console.log("test");
+
     } catch (e) {
+      console.log("crash");
       throw new NotFoundException(e.message);
     }
 
+    console.log("success");
     return userBuilder.buildFromDoc(doc);
   }
 
@@ -133,5 +138,10 @@ export class UserService {
     }
 
     return userBuilder.buildFromDocs(docs);
+  }
+
+  async isNotifAllowed(userId: string): Promise<boolean> {
+    const user = await this.findOne(userId);
+    return user.isNotifAllowed;
   }
 }
