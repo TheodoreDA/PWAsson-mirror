@@ -12,6 +12,7 @@ import { NotificationService } from './notification.service';
 import { AcceptNotificationDto } from './dto/accept-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { AccessTokenInterceptor } from 'src/interceptor/token.interceptor';
+import { Payload } from 'src/auth/dto/payload';
 
 @Controller('notification')
 export class NotificationController {
@@ -19,14 +20,14 @@ export class NotificationController {
 
   @UseInterceptors(AccessTokenInterceptor)
   @Post("acceptNotification")
-  acceptNotification(@Body() test: any) {
-    console.log(test);
-    // return this.notificationService.acceptNotification(acceptNotificationDto);
+  acceptNotification(@Body() notificationInfo: AcceptNotificationDto, @Body('payload') payload: Payload) {
+    console.log("acceptNotification", notificationInfo);
+    return this.notificationService.acceptNotification(notificationInfo, payload.uid);
   }
 
   @UseInterceptors(AccessTokenInterceptor)
   @Post("revokeNotification")
-  revokeNotification() {
-
+  revokeNotification(@Body('payload') payload: Payload) {
+    return this.notificationService.revokeNotification(payload.uid);
   }
 }

@@ -13,4 +13,20 @@ export class NotificationService {
     );
     return 'This action adds a new Notification';
   }
+
+  async revokeNotification(uid: string) {
+    const user = await this.userService.findOne(uid);
+
+    user.isNotifAllowed = false;
+    user.endpoint = null;
+    user.expirationTime = null;
+    user.p256dh = null;
+    user.auth = null;
+    
+    try {
+      await db.updateDocument(DB_ID, 'USERS', uid, user);
+    } catch (e) {
+      throw new BadRequestException('UnknownException: ' + e.message);
+    }
+  }
 }
