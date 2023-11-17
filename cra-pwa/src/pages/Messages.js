@@ -159,7 +159,7 @@ class Messages extends React.Component {
             }
             this.setState({ conversations: tmpMessageArray, chatUid: tmpMessageArray });
         } catch (error) {
-            alert("an error occured");
+            console.log(error);
         }
     }
 

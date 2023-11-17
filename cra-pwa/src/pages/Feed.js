@@ -8,14 +8,32 @@ import { FaHeart } from "react-icons/fa";
 import './Feed.css';
 import { Link } from "react-router-dom";
 
+
 function ListItem(props) {
+    const [clicked, setClicked] = useState(props.post.likesUid[0] ? true : false);
+
+    async function handleClick(feedUid) {
+        try {
+            await axios.patch(`http://localhost:8080/publication/like_unlike/${feedUid}`, {}, {
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                }
+            });
+            setClicked(!clicked);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return <li className="cursor-pointer" key={props.post.uid}>
         <p>{props.post.user}</p>
         <p>{props.post.title}</p>
         <img src={`data:image/png;base64,${props.post.image}`} alt="helloworld" />
         <p className="time">{props.post.description}</p>
         <div className="social">
-            <div><FaHeart /> {props.post.likes}</div>
+            <div>
+                <FaHeart style={{color: clicked ? 'red' : 'white'}} onClick={() => handleClick(props.post.uid)} /> {props.post.likes}
+            </div>
             <Link to="/post" className="linkComment" state={{ post: props.post }}><BiSolidCommentDetail /></Link>
         </div>
     </li>;
@@ -56,13 +74,11 @@ function Feed() {
                     const author = responseUser.data?.username;
                     Object.assign(tmp, { user: author });
                     tmpPostArray.push(tmp);
-                    console.log(tmp.uid);
                 }
                 setPostArray(tmpPostArray);
             } catch (error) {
                 alert("No feed to load");
             }
-            
         }
         fetchData();
     }, [])
