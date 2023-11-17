@@ -29,36 +29,40 @@ function Feed() {
     const userId = jwtToken.uid;
 
     useEffect(() => {
-        console.log("beziaoziaojizojiojzaiaz");
         async function fetchData() {
-            if (localStorage.getItem("username")) {
-                const responseUsername = await axios.get(`http://localhost:8080/user/${userId}`);
-                setUsername(responseUsername.data?.username);
-                localStorage.setItem("username", responseUsername.data?.username);
+            try {
+                if (localStorage.getItem("username")) {
+                    const responseUsername = await axios.get(`http://localhost:8080/user/${userId}`);
+                    setUsername(responseUsername.data?.username);
+                    localStorage.setItem("username", responseUsername.data?.username);
+                }
+                const response = await axios.get(`http://localhost:8080/publication`);
+                let tmpPostArray = [];
+                for (let i = 0; i < response.data.length; i++) {
+                    let tmp = {};
+                    Object.assign(tmp,
+                        {
+                            uid: response.data[i]?.uid,
+                            title: response.data[i]?.title,
+                            description: response.data[i]?.description,
+                            authorUid: response.data[i]?.authorUid,
+                            pictureUid: response.data[i]?.pictureUid,
+                            likesUid: response.data[i]?.likesUid
+                        });
+                    const responsePircture = await axios.get(`http://localhost:8080/publication/picture/${tmp.pictureUid}`);
+                    const base64String = btoa(String.fromCharCode(...new Uint8Array(responsePircture.data?.data)));
+                    Object.assign(tmp, { image: base64String });
+                    const responseUser = await axios.get(`http://localhost:8080/user/${tmp.authorUid}`);
+                    const author = responseUser.data?.username;
+                    Object.assign(tmp, { user: author });
+                    tmpPostArray.push(tmp);
+                    console.log(tmp.uid);
+                }
+                setPostArray(tmpPostArray);
+            } catch (error) {
+                alert("No feed to load");
             }
-            const response = await axios.get(`http://localhost:8080/publication`);
-            let tmpPostArray = [];
-            for (let i = 0; i < response.data.length; i++) {
-                let tmp = {};
-                Object.assign(tmp,
-                    {
-                        uid: response.data[i]?.uid,
-                        title: response.data[i]?.title,
-                        description: response.data[i]?.description,
-                        authorUid: response.data[i]?.authorUid,
-                        pictureUid: response.data[i]?.pictureUid,
-                        likesUid: response.data[i]?.likesUid
-                    });
-                const responsePircture = await axios.get(`http://localhost:8080/publication/picture/${tmp.pictureUid}`);
-                const base64String = btoa(String.fromCharCode(...new Uint8Array(responsePircture.data?.data)));
-                Object.assign(tmp, { image: base64String });
-                const responseUser = await axios.get(`http://localhost:8080/user/${tmp.authorUid}`);
-                const author = responseUser.data?.username;
-                Object.assign(tmp, { user: author });
-                tmpPostArray.push(tmp);
-                console.log(tmp.uid);
-            }
-            setPostArray(tmpPostArray);
+            
         }
         fetchData();
     }, [])
