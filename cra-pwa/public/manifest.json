@@ -1,0 +1,25 @@
+{
+  "short_name": "Pwa",
+  "name": "Progressive Web App",
+  "icons": [
+    {
+      "src": "instagram-64.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
+      "src": "instagram-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "instagram-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/auth",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

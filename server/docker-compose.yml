@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+  main:
+    container_name: main
+    build:
+      context: .
+      target: production
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    command: sh -c "yarn install && yarn run start"
+    env_file:
+      - .env
+    networks:
+      - webnet
+networks:
+  webnet:
+volumes:
+  pgdata:
