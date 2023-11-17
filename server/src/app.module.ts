@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
 import { JwtModule } from '@nestjs/jwt';
 import { MessageModule } from './message/message.module';
+import { SocketModule } from './gateway/socket.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { MessageModule } from './message/message.module';
     ChatModule,
     MessageModule,
     AdminModule,
+    SocketModule,
   ],
 })
 export class AppModule {}

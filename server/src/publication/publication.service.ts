@@ -12,9 +12,12 @@ import { DB_ID, db, storage } from 'src/database/app.database';
 import { InputFile, Models } from 'node-appwrite';
 import { userBuilder } from 'src/builder/user.builder';
 import { Query } from 'appwrite';
+import { SocketService } from 'src/gateway/socket.service';
 
 @Injectable()
 export class PublicationService {
+  constructor(private readonly socketService: SocketService) {}
+
   async create(
     createPublicationDto: CreatePublicationDto,
     picture: Express.Multer.File,
@@ -55,6 +58,8 @@ export class PublicationService {
       }
       throw new BadRequestException('UnknownException: ' + e.message);
     }
+
+    this.socketService.emitNewPublication(publication);
     return publicationBuilder.buildFromDoc(doc);
   }
 
