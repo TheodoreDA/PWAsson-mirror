@@ -12,9 +12,15 @@ import { DB_ID, db, storage } from 'src/database/app.database';
 import { InputFile, Models } from 'node-appwrite';
 import { userBuilder } from 'src/builder/user.builder';
 import { Query } from 'appwrite';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class PublicationService {
+  private readonly notificationService: NotificationService;
+  constructor(notificationService: NotificationService) {
+    this.notificationService = notificationService;
+  }
+
   async create(
     createPublicationDto: CreatePublicationDto,
     picture: Express.Multer.File,
@@ -55,6 +61,8 @@ export class PublicationService {
       }
       throw new BadRequestException('UnknownException: ' + e.message);
     }
+
+    this.notificationService.notifAllUsers(publication);
     return publicationBuilder.buildFromDoc(doc);
   }
 

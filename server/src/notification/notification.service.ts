@@ -74,4 +74,20 @@ export class NotificationService {
       throw new BadRequestException('UnknownException: ' + e.message);
     }
   }
+
+  async notifAllUsers(publication: Publication) {
+
+    const users = await this.userService.getAllUserNotificationAllowed()
+
+    users.forEach(user => {
+      console.log(user);
+      this.sendNotification(user, {
+        notification: {
+          title: "New publication:" + publication.title,
+          body: publication.description,
+        }
+      });
+    })
+      
+  }
 }
