@@ -14,12 +14,12 @@ function ListItem(props) {
 
     async function handleClick(feedUid) {
         try {
+            setClicked(!clicked);
             await axios.patch(`http://localhost:8080/publication/like_unlike/${feedUid}`, {}, {
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("token")}`,
                 }
             });
-            setClicked(!clicked);
         } catch (error) {
             console.log(error);
         }
