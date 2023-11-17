@@ -16,11 +16,15 @@ export class NotificationService {
   }
 
   sendNotification(user: User, payload: object) {
+    try {
     webpush.setVapidDetails(
       process.env.EMAIL,
       process.env.PUBLIC_VAPID_KEY,
       process.env.PRIVATE_VAPID_KEY,
     );
+    } catch (e) {
+      console.log("couldn't set vapid details");
+    }
 
     try {
       webpush.sendNotification(
