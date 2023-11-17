@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import './Profile.css';
-import notificationLogo from "../assets/instagram.png"
+import notificationLogo from "../assets/instagram-64.png"
 
 const Notifications = () => {
     const [notificationStatus, setNotificationStatus] = useState(Notification.permission);
@@ -70,6 +70,38 @@ const WebPushNotifications = () => {
         // check if the user allow or not the webpushnotification
     });
 
+    const sendSubscriptionToServer = (subscription) => {
+        console.log("subscription:", subscription);
+        axios.post(
+            "http://localhost:8080/notification/acceptNotification",
+            subscription,
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            }
+        ).then((res) => {
+            console.log(res);
+        });
+    }
+
+    const acceptWebPushNotification = () => {
+        navigator.serviceWorker.ready.then((registration) => {
+            registration.pushManager
+            .subscribe({
+                userVisibleOnly: true,
+                applicationServerKey:
+                "BIrxem2ATCIG3x814Yo6IglnsP8oGPdHZz9iAXtB3xw4EzlNvhoDNSzKTfj9YgGIllco-O9wiGXhxWRlPGP3tAI",
+            })
+            .then((subscription) => {
+                sendSubscriptionToServer(subscription);
+            })
+            .catch((error) => {
+                console.error("Push subscription error:", error);
+            });
+        });
+    }
+
     if (webPushNotification) {
         return (
             <>
@@ -84,7 +116,7 @@ const WebPushNotifications = () => {
                     Hey I need you permission to send you some webpush notification
                 </p>
                 <button
-                onClick={() => {setWebPushNotification(true)}}
+                onClick={() => {acceptWebPushNotification()}}
                     >
                 Validate
                 </button>
