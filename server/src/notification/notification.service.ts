@@ -17,11 +17,11 @@ export class NotificationService {
 
   sendNotification(user: User, payload: object) {
     try {
-    webpush.setVapidDetails(
-      process.env.EMAIL,
-      process.env.PUBLIC_VAPID_KEY,
-      process.env.PRIVATE_VAPID_KEY,
-    );
+      webpush.setVapidDetails(
+        process.env.EMAIL,
+        process.env.PUBLIC_VAPID_KEY,
+        process.env.PRIVATE_VAPID_KEY,
+      );
     } catch (e) {
       console.log("couldn't set vapid details");
     }
@@ -87,17 +87,17 @@ export class NotificationService {
   }
 
   async notifAllUsers(publication: Publication) {
-
     const users = await this.userService.getAllUserNotificationAllowed()
 
     users.forEach(user => {
-      console.log(user);
-      this.sendNotification(user, {
-        notification: {
-          title: "New publication:" + publication.title,
-          body: publication.description,
-        }
-      });
+      if (user.uid !== publication.authorUid) {
+        this.sendNotification(user, {
+          notification: {
+            title: "New publication:" + publication.title,
+            body: publication.description,
+          }
+        });
+      }
     })
       
   }
