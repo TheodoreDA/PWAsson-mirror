@@ -4,9 +4,128 @@ import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import './Profile.css';
-import { FaCpanel } from "react-icons/fa";
+import notificationLogo from "../assets/instagram-64.png"
 
-function Profile() {
+const Notifications = () => {
+    const [notificationStatus, setNotificationStatus] = useState(Notification.permission);
+    
+    const handleRevokePermissionClick = () => {
+        // Provide information to the user on how to manage site settings
+        alert('To revoke notification permission, go to your browser settings and find the site in the list of allowed or blocked notifications.');
+    };
+
+    switch (notificationStatus) {
+        case 'default':
+            return (
+                <>
+                    <p>
+                        Hey I need you permission to send you some interesting
+                        notifications
+                    </p>
+                    <button
+                        onClick={() => {
+                            Notification.requestPermission().then((result) => {
+                                if (result === "granted") {
+                                    setNotificationStatus(Notification.permission);
+                                    new Notification('Custom Notification', {
+                                        body: 'This is a custom notification body.',
+                                        icon: notificationLogo,
+                                        vibrate: [200, 100, 200, 100, 200, 100, 200],
+                                    });
+                                }
+                                else if (result === "denied")
+                                    setNotificationStatus(Notification.permission);
+                            })
+                        }}
+                    >
+                        accepter
+                    </button>
+                </>
+            )
+        case 'denied':
+            return (
+                <>
+                    <p> Hey you already refuse the notification you need to reset the permission to have it</p>
+                </>
+            )
+        case 'granted':
+            return (
+                <>
+                    <p> Remove notifications </p>
+                    <button onClick={handleRevokePermissionClick}> Remove </button>
+                </>
+            )
+        default:
+            return (
+                <>
+                    <p> Hey you already refuse the notification you need to reset the permission to have it</p>
+                </>
+            )
+    }
+}
+
+const WebPushNotifications = () => {
+    const [webPushNotification, setWebPushNotification] = useState(true);
+    useEffect(() => {
+        // check if the user allow or not the webpushnotification
+    });
+
+    const sendSubscriptionToServer = (subscription) => {
+        console.log("subscription:", subscription);
+        axios.post(
+            "http://localhost:8080/notification/acceptNotification",
+            subscription,
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            }
+        ).then((res) => {
+            console.log(res);
+        });
+    }
+
+    const acceptWebPushNotification = () => {
+        navigator.serviceWorker.ready.then((registration) => {
+            registration.pushManager
+            .subscribe({
+                userVisibleOnly: true,
+                applicationServerKey:
+                "BIrxem2ATCIG3x814Yo6IglnsP8oGPdHZz9iAXtB3xw4EzlNvhoDNSzKTfj9YgGIllco-O9wiGXhxWRlPGP3tAI",
+            })
+            .then((subscription) => {
+                sendSubscriptionToServer(subscription);
+            })
+            .catch((error) => {
+                console.error("Push subscription error:", error);
+            });
+        });
+    }
+
+    if (webPushNotification) {
+        return (
+            <>
+                <p> Remove webpush notification </p>
+                <button onClick={() => {setWebPushNotification(false)}}> Remove </button>
+            </>
+        )
+    } else {
+        return (
+            <>
+                <p>
+                    Hey I need you permission to send you some webpush notification
+                </p>
+                <button
+                onClick={() => {acceptWebPushNotification()}}
+                    >
+                Validate
+                </button>
+            </>
+        )
+    }
+}
+
+function Profile () {
     const [username, setUsername] = useState();
     const token = localStorage.getItem("token");
     const jwtToken = jwtDecode(token)
@@ -32,15 +151,10 @@ function Profile() {
                         <label>Nom d'utilisateur : </label>
                         <h3>{localStorage.getItem("username")}</h3>
                     </div>
-                    <div>
-                        <label>Notifications : </label>
-                        <h3>Les notifications sont acceptées</h3>
+                    <Notifications />
+                    <WebPushNotifications />
                     </div>
-                    <button type='submit'>Ne plus accepter</button>
-                </div>
-                <Link className="buttonAuth" to="/auth">
-                    <button type='submit'>Se déconnecter</button>
-                </Link>
+                <button type='submit'>Se déconnecter</button>
             </div>
         </div>
     );
