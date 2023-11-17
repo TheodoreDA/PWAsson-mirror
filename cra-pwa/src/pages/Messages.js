@@ -6,10 +6,15 @@ import React from "react";
 import axios from "axios";
 
 class SideNav extends React.Component {
-    selectedConv = 0;
+    constructor(props) {
+        super(props);
+        this.state = {
+            selectedConv: 0,    
+        };
+      }
 
     changeConversation(index) {
-        this.setState(() => this.selectedConv = index);
+        this.setState({selectedConv: index});
         this.props.onSelected(index);
     }
 
@@ -18,7 +23,7 @@ class SideNav extends React.Component {
             <aside>
                 <div><Link to="/feed" className="return-cursor"><IoMdArrowBack className="icon" />Retour</Link></div>
                 <nav><ul>
-                    {this.props.conversations.map((item, index) => <li key={"nav-item-" + index} onClick={() => this.changeConversation(index)} className={"cursor-pointer " + (this.selectedConv === index ? "selected" : "")}>
+                    {this.props.conversations.map((item, index) => <li key={"nav-item-" + index} onClick={() => this.changeConversation(index)} className={"cursor-pointer " + (this.state.selectedConv === index ? "selected" : "")}>
                         <div><p>{item.user}</p><p>{this.props.conversations[0].formattedDate}</p></div>
                         <p>{this.props.conversations[0].content}</p>
                     </li>)}
@@ -91,7 +96,8 @@ class Messages extends React.Component {
         super(props);
         this.state = {
             chatUid: [],
-            conversations: []
+            conversations: [],
+            selectedConv: 0,
         }
     }
     
@@ -101,6 +107,7 @@ class Messages extends React.Component {
     }
 
     async fetchData() {
+        console.log("test");
         const options = {
             year: 'numeric',
             month: 'long',
@@ -112,67 +119,59 @@ class Messages extends React.Component {
         };
 
         try {
+            let tmpChatArray = [];
+            let tmpMessageArray = [];
+
             const responseChat = await axios.get(`http://localhost:8080/chat/`, {
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("token")}`,
                 }
             });
-            let tmpChatArray = [];
+
             for (let i = 0; i < responseChat.data.length; i++) {
-                let tmpChat = {};
-                Object.assign(tmpChat,
-                    {
-                        chatUid: responseChat.data[i]?.uid
-                    }
-                );
-                tmpChatArray.push(tmpChat);
+                tmpChatArray.push({
+                    chatUid: responseChat.data[i]?.uid
+                });
+
                 const responseMessage = await axios.get(`http://localhost:8080/message/${responseChat.data[i]?.uid}`, {
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem("token")}`,
                     }
                 });
-                let tmpMessageArray = [];
+
                 for (let i = 0; i < responseMessage.data.length; i++) {
-                    let tmpMessage = {};
-                    Object.assign(tmpMessage,
-                        {
-                            authorUid: responseMessage.data[i]?.authorUid,
-                            content: responseMessage.data[i]?.content,
-                            sentAt: responseMessage.data[i]?.sentAt
-                        })
+                    let tmpMessage = {
+                        authorUid: responseMessage.data[i]?.authorUid,
+                        content: responseMessage.data[i]?.content,
+                        sentAt: responseMessage.data[i]?.sentAt
+                    };
+
                     const responseUser = await axios.get(`http://localhost:8080/user/${responseMessage.data[i]?.authorUid}`);
                     const author = responseUser.data?.username;
                     Object.assign(tmpMessage, { user: author});
+                    
                     const date = new Date(tmpMessage.sentAt);
                     const formattedDate = date.toLocaleString('en-US', options);
-                    Object.assign(tmpMessage, { formattedDate: formattedDate});
+                    Object.assign(tmpMessage, { formattedDate});
+
                     tmpMessageArray.push(tmpMessage);
                 }
-                this.setState({ conversations: tmpMessageArray});
             }
-            this.setState({ chatUid: tmpChatArray });
-            console.log(this.state.conversations);
+            this.setState({ conversations: tmpMessageArray, chatUid: tmpMessageArray });
         } catch (error) {
             alert("an error occured");
         }
     }
 
-    // conversations = [
-    //     { userId: 1, userName: "Mr Propre", lastMessage: "Oui j'ai vu. Mais Lorem ipsum dolor sit amet", lastMessageTime: new Date(2023, 9, 5, 11, 0, 0) },
-    //     { userId: 2, userName: "Ashmoore", lastMessage: "Salo", lastMessageTime: new Date(2008, 9, 5) },
-    //     { userId: 3, userName: "Skeure", lastMessage: "Montpellier < Nantes", lastMessageTime: new Date(2007, 9, 5) },
-    // ];
-
-    selectedConv = 0;
-
-    onConvSelected = (index) => this.setState(() => this.selectedConv = index);
+    onConvSelected = (index) => this.setState({selectedConv: index});
 
     render() {
-
-        return <div className="Messages">
-            <SideNav conversations={this.state.conversations} onSelected={this.onConvSelected} />
-            <Content chatUid={this.state.chatUid} conversations={this.state.conversations} contentId={this.selectedConv} />
-        </div>
+        return (
+            <div className="Messages">
+                <SideNav conversations={this.state.conversations} onSelected={this.onConvSelected} />
+                <Content chatUid={this.state.chatUid} conversations={this.state.conversations} contentId={this.selectedConv} />
+            </div>
+        )
     }
 }
 
