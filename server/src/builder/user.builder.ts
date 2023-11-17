@@ -12,6 +12,11 @@ export class UserBuilder extends ABuilder<User> {
     this.object.publicationsUid = [];
     this.object.publicationsLikedUid = [];
     this.object.commentsLikedUid = [];
+    this.object.isNotifAllowed = false;
+    this.object.endpoint = null;
+    this.object.expirationTime = null;
+    this.object.p256dh = null;
+    this.object.auth = null;
     return this;
   }
 
@@ -54,6 +59,31 @@ export class UserBuilder extends ABuilder<User> {
     return this;
   }
 
+  setIsNotifAllowed(isNotifAllowed: boolean): UserBuilder {
+    this.object.isNotifAllowed = isNotifAllowed;
+    return this;
+  }
+
+  setEndpoint(endpoint: string): UserBuilder {
+    this.object.endpoint = endpoint;
+    return this;
+  }
+
+  setExpirationTime(expirationTime: number | null): UserBuilder {
+    this.object.expirationTime = expirationTime;
+    return this;
+  }
+
+  setP256dh(p256dh: string): UserBuilder {
+    this.object.p256dh = p256dh;
+    return this;
+  }
+
+  setAuth(auth: string): UserBuilder {
+    this.object.auth = auth;
+    return this;
+  }
+
   buildFromDoc(doc: Models.Document): User {
     this.setUid(doc['uid']);
     this.setUsername(doc['username']);
@@ -62,6 +92,11 @@ export class UserBuilder extends ABuilder<User> {
     this.setPublicationsUid(doc['publicationsUid']);
     this.setPublicationsLikedUid(doc['publicationsLikedUid']);
     this.setCommentsLikedUid(doc['commentsLikedUid']);
+    this.setIsNotifAllowed(doc['isNotifAllowed']);
+    this.setEndpoint(doc['endpoint']);
+    this.setExpirationTime(doc['expirationTime']);
+    this.setP256dh(doc['p256dh']);
+    this.setAuth(doc['auth']);
     return this.build();
   }
 }

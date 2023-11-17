@@ -39,6 +39,14 @@ export class User {
     ],
   })
   commentsLikedUid: string[];
+  @ApiProperty({
+    description: 'This section is use to know if the user allow the notifications, and if yes, to know the endpoint, expirationTime and keys to send the notifications',
+  })
+  isNotifAllowed: boolean;
+  endpoint: string;
+  expirationTime: number | null;
+  p256dh: string;
+  auth: string;
 
   toObject(): object {
     return {
@@ -49,6 +57,11 @@ export class User {
       publicationsUid: this.publicationsUid,
       publicationsLikedUid: this.publicationsLikedUid,
       commentsLikedUid: this.commentsLikedUid,
+      isNotifAllowed: this.isNotifAllowed,
+      endpoint: this.endpoint,
+      expirationTime: this.expirationTime,
+      p256dh: this.p256dh,
+      auth: this.auth,
     };
   }
 }
