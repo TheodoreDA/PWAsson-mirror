@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
 import { JwtModule } from '@nestjs/jwt';
 import { MessageModule } from './message/message.module';
+import { SocketModule } from './gateway/socket.module';
 import { NotificationModule } from './notification/notification.module';
 
 @Module({
@@ -31,6 +32,7 @@ import { NotificationModule } from './notification/notification.module';
     ChatModule,
     MessageModule,
     AdminModule,
+    SocketModule,
     NotificationModule,
   ],
 })
