@@ -27,6 +27,7 @@ function Publication() {
     const [newComment, setNewComment] = useState("");
     const [post, setPost] = useState({});
     const [postImg, setPostImg] = useState(null);
+    const [isLiked, setIsLiked] = useState(false);
 
     const urlSearchParams = new URLSearchParams(window.location.search);
     const postId = urlSearchParams.get('id');
@@ -44,20 +45,16 @@ function Publication() {
     const userInfo = jwtDecode(localStorage.getItem('token'));
 
     useEffect(() => {
-        console.log('postId', postId);
         const getPost = async () => {
             axios.get(`http://localhost:8080/publication/${postId}`).then((response) => {
                 setPost({...response.data, likesNbr: response.data.likesUid.length});
-                console.log("response.data", response.data);
+                setIsLiked(response.data.likesUid.includes(userInfo.uid));
                 fetchData();
             }).catch((error) => {
-                // console.error(error);
                 navigate("/feed");
             });
         }
-        getPost();
-
-        
+        getPost();        
     }, [])
 
     useEffect(() => {
@@ -71,7 +68,6 @@ function Publication() {
     }, [post])
 
     useEffect(() => {
-        console.log("post", post);
         setPost({...post, commentsNbr: commentArray.length})
     }, [commentArray])
 
@@ -111,14 +107,15 @@ function Publication() {
     }
 
     async function onUpdatePostLike() {
-        // TODO Doesn't work for some reason
-        const res = await axios.patch(`http://localhost:8080/publication/like_unlike/${post.uid}`, null, {
+        await axios.patch(`http://localhost:8080/publication/like_unlike/${post.uid}`, null, {
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`,
             }
+        }).catch((error) => {
+            console.log(error);
+            return;
         });
-        console.log("res", res);
-        fetchData();
+        setIsLiked(!isLiked);
     }
 
     async function onSubmitMessage() {
@@ -151,7 +148,7 @@ function Publication() {
                                 {/* <p className="time">{post.time}</p> */}
                                 <div className="social"><BiSolidCommentDetail /> {post.commentsNbr}</div>
                                 <div className="social"><FaHeart
-                                    style={{ color: post.likesUid.includes(userInfo.uid) ? 'red' : 'white' }}
+                                    style={{ color: isLiked ? 'red' : 'white' }}
                                     onClick={() => onUpdatePostLike()}
                                 /> {post.likesNbr}</div>
                             </div>
