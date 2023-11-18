@@ -3,7 +3,7 @@ import { MdOutlineAddBox } from "react-icons/md";
 import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
-import { BiSolidCommentDetail } from "react-icons/bi";
+import { BiSolidCommentDetail, BiWifi, BiWifiOff } from "react-icons/bi";
 import { FaHeart } from "react-icons/fa";
 import './Feed.css';
 import { Link } from "react-router-dom";
@@ -61,7 +61,7 @@ function ListItem(props) {
             <div>
                 <FaHeart style={{color: clicked ? 'red' : 'white'}} onClick={() => handleClick(props.post.uid)} /> {props.post.likes}
             </div>
-            <Link to="/post" className="linkComment" state={{ post: props.post }}><BiSolidCommentDetail /></Link>
+            <Link to={"/post?id=" + props.post.uid} className="linkComment"><BiSolidCommentDetail /></Link>
             <p>{ commentsNumber }</p>
         </div>
     </li>;
@@ -70,6 +70,7 @@ function ListItem(props) {
 function Feed() {
     const [postArray, setPostArray] = useState([]);
     const [username, setUsername] = useState();
+    const [isFetching, setIsFetching] = useState(true);
     const token = localStorage.getItem("token");
     const jwtToken = jwtDecode(token)
     const userId = jwtToken.uid;
@@ -103,7 +104,9 @@ function Feed() {
                     Object.assign(tmp, { user: author });
                     tmpPostArray.push(tmp);
                 }
-                setPostArray(tmpPostArray);
+                setPostArray(tmpPostArray.reverse());
+
+                setIsFetching(false);
             } catch (error) {
                 alert("No feed to load");
             }
@@ -117,12 +120,15 @@ function Feed() {
         <div className="Feed">
             <div className="header">
                 <Link to="/messages"><IoIosChatbubbles className="icon cursor-pointer" /></Link>
-                <h1>Dernières publications</h1>
+                <div>
+                    { navigator.onLine ? <span>En ligne <BiWifi /></span> : <span>Hors ligne <BiWifiOff /></span> }
+                    <h1>Dernières publications</h1>
+                </div>
                 <Link to="/profile" className="username cursor-pointer">{localStorage.getItem("username") ? localStorage.getItem("username") : username}</Link>
             </div>
             <div className="body">
                 <Link to="/newpost" className="new-post cursor-pointer"><MdOutlineAddBox /><h3>Nouveau post</h3></Link>
-                <ul>{listItems}</ul>
+                {isFetching ? <p style={{marginTop: '5em'}}>Chargement de vos publications...</p> : <ul>{listItems}</ul>}
             </div>
         </div>
     );

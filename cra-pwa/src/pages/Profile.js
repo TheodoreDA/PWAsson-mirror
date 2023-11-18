@@ -100,7 +100,6 @@ const WebPushNotifications = () => {
     }
 
     const acceptWebPushNotification =  () => {
-        console.log("webpush", webPushNotification)
         setWebPushNotification(true)
         navigator.serviceWorker.ready.then((registration) => {
             registration.pushManager

@@ -69,20 +69,55 @@ registerRoute(
   })
 );
 
-// const CACHE_NAME = 'service-worker-cache-v1';
+const version = 'v0';
+const cacheName = `my-app-cache-${version}`;
 
-// self.addEventListener('install', event => {
-//   event.waitUntil(
-//     caches.open(CACHE_NAME).then(cache => {
-//       return cache.addAll([
-//         '/auth',
-//       ]);
-//     })
-//   );
-// });
+self.addEventListener('install', (event) => {
+  // event.waitUntil(
+  //   caches.open(cacheName).then((cache) => {
+  //     // Cache resources
+  //   })
+  // );
 
-// This allows the web app to trigger skipWaiting via
-// registration.waiting.postMessage({type: 'SKIP_WAITING'})
+  // Skip waiting and activate the new service worker
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  // event.waitUntil(
+  //   caches.keys().then((cacheNames) => {
+  //     return Promise.all(
+  //       cacheNames.map((cache) => {
+  //         if (cache !== cacheName) {
+  //           return caches.delete(cache);
+  //         }
+  //       })
+  //     );
+  //   })
+  // );
+  // self.clients.claim();
+});
+
+self.addEventListener('fetch', (event) => {
+  // event.respondWith(
+  //   caches.match(event.request).then((response) => {
+  //     // If the resource is in the cache, return it
+  //     if (response) {
+  //       return response;
+  //     }
+
+  //     // If the resource is not in the cache, fetch it
+  //     return fetch(event.request);
+  //   })
+  // );
+});
+
+self.addEventListener('controllerchange', () => {
+  // Reload the page or perform other actions
+  window.location.reload();
+});
+
+
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
@@ -99,10 +134,9 @@ self.addEventListener('push', (event) => {
     body: notificationPush.body,
     icon: notificationLogo,
     vibrate: [100, 50, 100],
-    actions: [
-      {action: 'like', title: 'Like'},
-      {action: 'reply', title: 'Reply'}
-    ]
+    data: {
+      url: notificationPush.url 
+    }
   }
   event.waitUntil(
     self.registration.showNotification(notificationPush.title,
@@ -110,40 +144,34 @@ self.addEventListener('push', (event) => {
 })
 
 self.addEventListener('notificationclick', function(event) {
-  var messageId = event.notification.data;
-
   event.notification.close();
+  var messageId = event.notification.data;
+  const url = event.notification.data.url;
 
-  if (event.action === 'like') {
-    // silentlyLikeItem();
-    console.log('like');
-    event.waitUntil(
-      self.clients.matchAll({ type: 'window' }).then((clientList) => {
-          // Check if the client is currently focused on a specific page
-        for (const client of clientList) {
-          if (client.url === 'http://localhost:3000/profile') {
-            if (client.focused) {
-              return;
-            }
-            else {
-              client.navigate('http://localhost:3000/auth');
-              return client.focus();
-            }
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then((clientList) => {
+        // Check if the client is currently focused on a specific page
+      for (const client of clientList) {
+        if (client.url === 'url') {
+          if (client.focused) {
+            // There's already a window/tab open with the target URL and it's focused, let's use it
+            return;
+          }
+          else {
+            // There's already a window/tab open with the target URL but it's not focused, let's focus it
+            return client.focus();
           }
         }
-        console.log("client is not on the page"); 
-        return self.clients.openWindow('http://localhost:3000/profile');
-      })
-    )
-  }
-  else if (event.action === 'reply') {
-    console.log('reply');
-    // clients.openWindow("/messages?reply=" + messageId);
-  }
-  else {
-    console.log('reply' + messageId);
-
-    // clients.openWindow("/messages?reply=" + messageId);
-  }
+        // There is a window/tab open with the website but not the good page, let's redirect it
+        if (client.url.includes('http://localhost:3000')) {
+          client.navigate(url);
+          return client.focus();
+        }
+      }
+      // If there's no window/tab open, open one
+      console.log("client is not on the page"); 
+      return self.clients.openWindow(url);
+    })
+  )
 }, false);
 

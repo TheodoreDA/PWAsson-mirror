@@ -11,9 +11,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { DB_ID, db } from 'src/database/app.database';
 import { Models, Query } from 'node-appwrite';
 import { userBuilder } from 'src/builder/user.builder';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class CommentService {
+  private readonly notificationService: NotificationService;
+  constructor(notificationService: NotificationService) {
+    this.notificationService = notificationService;
+  }
+
   async create(createCommentDto: CreateCommentDto, authorUid: string) {
     let doc: Models.Document;
 
@@ -43,6 +49,12 @@ export class CommentService {
     } catch (e) {
       throw new BadRequestException('UnknownException: ' + e.message);
     }
+
+    await this.notificationService.notifyUserOfComment(
+      authorUid,
+      comment.publicationUid,
+      comment.content,
+    );
 
     return commentBuilder.buildFromDoc(doc);
   }
@@ -113,9 +125,23 @@ export class CommentService {
           (uid) => uid != connectedUserUid,
         );
       }
+      this.notificationService.notifyUserOfCommentLike(
+        user,
+        comment.authorUid,
+        'dislike',
+        comment.content,
+        comment.publicationUid,
+      );
     } else {
       user.commentsLikedUid.push(commentId);
       comment.likesUid.push(connectedUserUid);
+      this.notificationService.notifyUserOfCommentLike(
+        user,
+        comment.authorUid,
+        'dislike',
+        comment.content,
+        comment.publicationUid,
+      );
     }
 
     try {
