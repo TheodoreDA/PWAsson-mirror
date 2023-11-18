@@ -25,7 +25,7 @@ class SideNav extends React.Component {
     }
 
     async getUsers() {
-        axios.get(`http://localhost:8080/user`).then(res => this.setState({ fetchedUsers: res.data }));
+        axios.get(process.env.REACT_APP_API + `/user`).then(res => this.setState({ fetchedUsers: res.data }));
     }
 
     async onCreateNewChat() {
@@ -35,7 +35,7 @@ class SideNav extends React.Component {
             alert('Utilisateur introuvable');
             return;
         }
-        await axios.post(`http://localhost:8080/chat`, { usersUid: [foundUser.uid] }, {
+        await axios.post(process.env.REACT_APP_API + `/chat`, { usersUid: [foundUser.uid] }, {
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`,
             }
@@ -96,7 +96,7 @@ class Content extends React.Component {
     }
 
     async onSubmitMessage() {
-        await axios.post(`http://localhost:8080/message`, {
+        await axios.post(process.env.REACT_APP_API + `/message`, {
             chatUid: this.state.content.uid,
             content: this.state.message
         }, {
@@ -164,7 +164,7 @@ class Messages extends React.Component {
 
         try {
 
-            const responseChat = await axios.get(`http://localhost:8080/chat/`, {
+            const responseChat = await axios.get(process.env.REACT_APP_API + `/chat/`, {
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("token")}`,
                 }
@@ -173,14 +173,14 @@ class Messages extends React.Component {
 
             for (let i = 0; i < responseChat.data.length; i++) {
                 const otherUserUid = responseChat.data[i].usersUid.find(u => u.uid !== this.state.me.uid);
-                const chatMessages = await axios.get(`http://localhost:8080/message/${responseChat.data[i]?.uid}`, {
+                const chatMessages = await axios.get(process.env.REACT_APP_API + `/message/${responseChat.data[i]?.uid}`, {
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem("token")}`,
                     }
                 });
                 let tmpMessageArray = [];
 
-                const otherUser = await axios.get(`http://localhost:8080/user/${otherUserUid}`);
+                const otherUser = await axios.get(process.env.REACT_APP_API + `/user/${otherUserUid}`);
                 for (let i = 0; i < chatMessages.data.length; i++) {
                     let tmpMessage = {
                         authorUid: chatMessages.data[i]?.authorUid,
