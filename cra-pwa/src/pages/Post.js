@@ -139,7 +139,10 @@ function Publication() {
                 <div className="Post">
                     <div className="header">
                         <div><Link to="/feed" className="return-cursor"><IoMdArrowBack />Retour</Link></div>
-                        <h1>{post.title}</h1>
+                        <div>
+                            { navigator.onLine ? <span>En ligne <BiWifi /></span> : <span>Hors ligne <BiWifiOff /></span> }
+                            <h1>{ post.title }</h1>
+                        </div>
                         <Link to="/profile" className="username cursor-pointer">{localStorage.getItem("username")}</Link>
                     </div>
                     <div className="body">
