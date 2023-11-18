@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import React from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { io } from "socket.io-client";
 
 class SideNav extends React.Component {
     constructor(props) {
@@ -96,7 +97,7 @@ class Content extends React.Component {
     }
 
     async onSubmitMessage() {
-        await axios.post(process.env.REACT_APP_API + `/message`, {
+        const res = await axios.post(process.env.REACT_APP_API + `/message`, {
             chatUid: this.state.content.uid,
             content: this.state.message
         }, {
@@ -104,6 +105,16 @@ class Content extends React.Component {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`,
             }
         });
+        if (this.props.socket != null) {
+            const body = {
+                chat: {
+                    ...this.props.conversations[this.props.contentId],
+                    messages: this.props.conversations[this.props.contentId].messages.map((message) => message.uid),
+                },
+                message: res.data,
+            };
+            this.props.socket.emit('new-message', body);
+        }
         this.setState({ message: "" });
         this.props.fetchData();
     }
@@ -144,6 +155,7 @@ class Messages extends React.Component {
             selectedConv: 0,
             me: jwtDecode(localStorage.getItem('token')),
             isLoading: true,
+            socket: null,
         }
     }
 
@@ -183,6 +195,9 @@ class Messages extends React.Component {
                 const otherUser = await axios.get(process.env.REACT_APP_API + `/user/${otherUserUid}`);
                 for (let i = 0; i < chatMessages.data.length; i++) {
                     let tmpMessage = {
+                        ...chatMessages.data[i],
+                        uid: chatMessages.data[i]?.uid,
+
                         authorUid: chatMessages.data[i]?.authorUid,
                         content: chatMessages.data[i]?.content,
                         sentAt: chatMessages.data[i]?.sentAt
@@ -198,6 +213,7 @@ class Messages extends React.Component {
                     tmpMessageArray.push(tmpMessage);
                 }
                 chats.push({
+                    ...responseChat.data[i],
                     uid: responseChat.data[i]?.uid,
                     otherUserUid: otherUserUid,
                     otherUserName: otherUser.data?.username,
@@ -205,9 +221,27 @@ class Messages extends React.Component {
                 })
             }
             this.setState({ conversations: chats, isLoading: false });
+            if (this.state.socket == null || !this.state.socket.active)
+                this.initWebsocket();
         } catch (error) {
             console.log(error);
         }
+    }
+
+    initWebsocket() {
+        const headers = {
+            extraHeaders: {
+                authorization: "Bearer " + localStorage.getItem("token")
+            }
+        };
+        const socket = io(process.env.REACT_APP_API, headers);
+        this.setState({ socket: socket});
+
+        socket.addEventListener("on-new-message", message => {
+           const convIdx = this.state.conversations.findIndex((chat) => chat.uid === message.chatUid);
+           this.state.conversations[convIdx].messages.push(message);
+           this.setState({ conversations: this.state.conversations});
+          });
     }
 
     onConvSelected = (index) => this.setState({selectedConv: index});
@@ -216,7 +250,7 @@ class Messages extends React.Component {
         return (
             <div className="Messages">
                 <SideNav isLoading={this.state.isLoading} conversations={this.state.conversations} onSelected={this.onConvSelected} />
-                <Content conversations={this.state.conversations} contentId={this.state.selectedConv} fetchData={() => this.fetchData()} />
+                <Content conversations={this.state.conversations} contentId={this.state.selectedConv} socket={this.state.socket} fetchData={() => this.fetchData()} />
             </div>
         )
     }
