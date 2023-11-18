@@ -69,20 +69,55 @@ registerRoute(
   })
 );
 
-// const CACHE_NAME = 'service-worker-cache-v1';
+const version = 'v0';
+const cacheName = `my-app-cache-${version}`;
 
-// self.addEventListener('install', event => {
-//   event.waitUntil(
-//     caches.open(CACHE_NAME).then(cache => {
-//       return cache.addAll([
-//         '/auth',
-//       ]);
-//     })
-//   );
-// });
+self.addEventListener('install', (event) => {
+  // event.waitUntil(
+  //   caches.open(cacheName).then((cache) => {
+  //     // Cache resources
+  //   })
+  // );
 
-// This allows the web app to trigger skipWaiting via
-// registration.waiting.postMessage({type: 'SKIP_WAITING'})
+  // Skip waiting and activate the new service worker
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  // event.waitUntil(
+  //   caches.keys().then((cacheNames) => {
+  //     return Promise.all(
+  //       cacheNames.map((cache) => {
+  //         if (cache !== cacheName) {
+  //           return caches.delete(cache);
+  //         }
+  //       })
+  //     );
+  //   })
+  // );
+  // self.clients.claim();
+});
+
+self.addEventListener('fetch', (event) => {
+  // event.respondWith(
+  //   caches.match(event.request).then((response) => {
+  //     // If the resource is in the cache, return it
+  //     if (response) {
+  //       return response;
+  //     }
+
+  //     // If the resource is not in the cache, fetch it
+  //     return fetch(event.request);
+  //   })
+  // );
+});
+
+self.addEventListener('controllerchange', () => {
+  // Reload the page or perform other actions
+  window.location.reload();
+});
+
+
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
