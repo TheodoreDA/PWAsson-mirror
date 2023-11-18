@@ -4,6 +4,7 @@ import { IoSend } from "react-icons/io5";
 import { FaHeart } from "react-icons/fa";
 import './Post.css';
 import { Link, useLocation } from "react-router-dom";
+import { BiWifi, BiWifiOff } from "react-icons/bi";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
