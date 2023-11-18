@@ -105,6 +105,7 @@ function Feed() {
                     tmpPostArray.push(tmp);
                 }
                 setPostArray(tmpPostArray.reverse());
+
                 setIsFetching(false);
             } catch (error) {
                 alert("No feed to load");
