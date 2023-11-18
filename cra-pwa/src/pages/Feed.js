@@ -12,9 +12,16 @@ import { Link } from "react-router-dom";
 function ListItem(props) {
     const [clicked, setClicked] = useState(false);
     const [likeNumber, setLikeNumber] = useState(props.post.likesUid.length);
+    const [commentsNumber, setCommentsNumber] = useState(0);
 
     useEffect(() => {
         setClicked(isLiked());
+
+        const getCommentsNumber = async () => {
+            const response = await axios.get(`http://localhost:8080/comment/${props.post.uid}`);
+            setCommentsNumber(response.data.length);
+        }
+        getCommentsNumber();
     }, [])
 
     const isLiked = () => {
@@ -55,6 +62,7 @@ function ListItem(props) {
                 <FaHeart style={{color: clicked ? 'red' : 'white'}} onClick={() => handleClick(props.post.uid)} /> {props.post.likes}
             </div>
             <Link to="/post" className="linkComment" state={{ post: props.post }}><BiSolidCommentDetail /></Link>
+            <p>{ commentsNumber }</p>
         </div>
     </li>;
 }
