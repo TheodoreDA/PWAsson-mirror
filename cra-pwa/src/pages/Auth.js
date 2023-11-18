@@ -21,6 +21,7 @@ function Login({ goToRegistration }) {
             });
             console.log(response.data);
             localStorage.setItem("token", response.data);
+            localStorage.setItem("username", formJson.username);
             navigate("/feed");
         } catch (error) {
             alert("Username ou passwpord incorrect");
@@ -59,6 +60,7 @@ function Register({ goToLogin }) {
             });
             console.log(response.data);
             localStorage.setItem("token", response.data);
+            localStorage.setItem("username", formJson.username);
             navigate("/feed");
         } catch (error) {
             alert("User couldn't be created");

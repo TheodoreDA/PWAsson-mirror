@@ -66,13 +66,29 @@ const Notifications = () => {
 
 const WebPushNotifications = () => {
     const [webPushNotification, setWebPushNotification] = useState(true);
-    useEffect(() => {
-        // check if the user allow or not the webpushnotification
-    });
 
-    const sendSubscriptionToServer = (subscription) => {
-        console.log("subscription:", subscription);
-        axios.post(
+    useEffect(() => {
+        const getUserWebPushNotificationAcceptance = async () => {
+            try {
+                const response = await axios.get(
+                    "http://localhost:8080/user/isNotifAllowed",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        },
+                    }
+                );
+                setWebPushNotification(response.data);
+            }
+            catch (error) {
+                console.log(error);
+            }
+        };
+        getUserWebPushNotificationAcceptance();
+    }, []);
+
+    const sendSubscriptionToServer = async (subscription) => {
+        await axios.post(
             "http://localhost:8080/notification/acceptNotification",
             subscription,
             {
@@ -80,12 +96,12 @@ const WebPushNotifications = () => {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
             }
-        ).then((res) => {
-            console.log(res);
-        });
+        );
     }
 
-    const acceptWebPushNotification = () => {
+    const acceptWebPushNotification =  () => {
+        console.log("webpush", webPushNotification)
+        setWebPushNotification(true)
         navigator.serviceWorker.ready.then((registration) => {
             registration.pushManager
             .subscribe({
@@ -93,12 +109,31 @@ const WebPushNotifications = () => {
                 applicationServerKey:
                 "BIrxem2ATCIG3x814Yo6IglnsP8oGPdHZz9iAXtB3xw4EzlNvhoDNSzKTfj9YgGIllco-O9wiGXhxWRlPGP3tAI",
             })
-            .then((subscription) => {
-                sendSubscriptionToServer(subscription);
+            .then(async (subscription) => {
+                await sendSubscriptionToServer(subscription);
             })
             .catch((error) => {
                 console.error("Push subscription error:", error);
+                setWebPushNotification(false)
             });
+        });
+    }
+
+    const removeWebPushNotification = async () => {
+        console.log("remove webpush", webPushNotification)
+        setWebPushNotification(false)
+        axios.post(
+            "http://localhost:8080/notification/revokeNotification",
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            }
+        ).then((res) => {
+        }).catch((error) => {
+            console.error("Push subscription error:", error);
+            setWebPushNotification(true)
         });
     }
 
@@ -106,7 +141,7 @@ const WebPushNotifications = () => {
         return (
             <>
                 <p> Remove webpush notification </p>
-                <button onClick={() => {setWebPushNotification(false)}}> Remove </button>
+                <button onClick={removeWebPushNotification}> Remove </button>
             </>
         )
     } else {
@@ -116,7 +151,7 @@ const WebPushNotifications = () => {
                     Hey I need you permission to send you some webpush notification
                 </p>
                 <button
-                onClick={() => {acceptWebPushNotification()}}
+                onClick={acceptWebPushNotification}
                     >
                 Validate
                 </button>
@@ -137,7 +172,13 @@ function Profile () {
             setUsername(response.data?.username);
         }
         fetchData();
-    })
+    }, [])
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        window.location.href = "/auth";
+    }
 
     return (
         <div className="Profile">
@@ -154,7 +195,7 @@ function Profile () {
                     <Notifications />
                     <WebPushNotifications />
                     </div>
-                <button type='submit'>Se déconnecter</button>
+                <button type='submit' onClick={handleLogout}>Se déconnecter</button>
             </div>
         </div>
     );

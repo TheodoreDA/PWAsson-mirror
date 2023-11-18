@@ -10,17 +10,43 @@ import { Link } from "react-router-dom";
 
 
 function ListItem(props) {
-    const [clicked, setClicked] = useState(props.post.likesUid[0] ? true : false);
+    const [clicked, setClicked] = useState(false);
+    const [likeNumber, setLikeNumber] = useState(props.post.likesUid.length);
+    const [commentsNumber, setCommentsNumber] = useState(0);
+
+    useEffect(() => {
+        setClicked(isLiked());
+
+        const getCommentsNumber = async () => {
+            const response = await axios.get(`http://localhost:8080/comment/${props.post.uid}`);
+            setCommentsNumber(response.data.length);
+        }
+        getCommentsNumber();
+    }, [])
+
+    const isLiked = () => {
+        const token = localStorage.getItem("token");
+        const jwtToken = jwtDecode(token)
+        const userId = jwtToken.uid;
+
+        return props.post.likesUid.includes(userId);
+    }
 
     async function handleClick(feedUid) {
         try {
-            setClicked(!clicked);
             await axios.patch(`http://localhost:8080/publication/like_unlike/${feedUid}`, {}, {
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("token")}`,
                 }
             });
-        } catch (error) {
+            setClicked(!clicked);
+            if (clicked) {
+                setLikeNumber(likeNumber - 1);
+            } else {
+                setLikeNumber(likeNumber + 1);
+            }
+        }
+        catch (error) {
             console.log(error);
         }
     }
@@ -31,10 +57,12 @@ function ListItem(props) {
         <img src={`data:image/png;base64,${props.post.image}`} alt="helloworld" />
         <p className="time">{props.post.description}</p>
         <div className="social">
+            <p>{ likeNumber }</p>
             <div>
                 <FaHeart style={{color: clicked ? 'red' : 'white'}} onClick={() => handleClick(props.post.uid)} /> {props.post.likes}
             </div>
             <Link to="/post" className="linkComment" state={{ post: props.post }}><BiSolidCommentDetail /></Link>
+            <p>{ commentsNumber }</p>
         </div>
     </li>;
 }

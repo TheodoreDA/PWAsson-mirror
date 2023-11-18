@@ -16,11 +16,15 @@ export class NotificationService {
   }
 
   sendNotification(user: User, payload: object) {
-    webpush.setVapidDetails(
-      process.env.EMAIL,
-      process.env.PUBLIC_VAPID_KEY,
-      process.env.PRIVATE_VAPID_KEY,
-    );
+    try {
+      webpush.setVapidDetails(
+        process.env.EMAIL,
+        process.env.PUBLIC_VAPID_KEY,
+        process.env.PRIVATE_VAPID_KEY,
+      );
+    } catch (e) {
+      console.log("couldn't set vapid details");
+    }
 
     try {
       webpush.sendNotification(
@@ -83,18 +87,51 @@ export class NotificationService {
   }
 
   async notifAllUsers(publication: Publication) {
-
     const users = await this.userService.getAllUserNotificationAllowed()
 
     users.forEach(user => {
-      console.log(user);
-      this.sendNotification(user, {
+      if (user.uid !== publication.authorUid) {
+        this.sendNotification(user, {
+          notification: {
+            title: "New publication:" + publication.title,
+            body: publication.description,
+          }
+        });
+      }
+    })
+  }
+
+  async isUserNotifAllowed(uid: string) {
+    const user = await this.userService.findOne(uid);
+
+    return user.isNotifAllowed;
+  }
+
+  async notifyUserOfPublicationLike(user: User, authorUid: string, status: string) {
+    const author = await this.userService.findOne(authorUid);
+
+    if (user.uid === authorUid) {
+      return;
+    }
+    if (!author.isNotifAllowed) {
+      return;
+    }
+
+    console.log('sending notification to:', author.username);
+    if (status === 'like') {
+      this.sendNotification(author, {
         notification: {
-          title: "New publication:" + publication.title,
-          body: publication.description,
+          title: "New like from " + user.username,
+          body: "Go check it out!",
         }
       });
-    })
-      
+    } else {
+      this.sendNotification(author, {
+        notification: {
+          title: "New dislike from " + user.username,
+          body: "Go check it out!",
+        }
+      });
+    }
   }
 }
