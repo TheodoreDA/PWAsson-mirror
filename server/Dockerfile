@@ -1,28 +1,15 @@
-FROM node:16.13 As development
+FROM node:20-alpine
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY package*.json  ./
 
-RUN yarn install
-
-COPY . .
-
-RUN yarn run build
-
-FROM node:16.13 as production
-
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-
-WORKDIR /usr/src/app
-
-COPY package*.json ./
-
-RUN yarn install --omit=dev
+RUN yarn
 
 COPY . .
 
-COPY --from=development /usr/src/app/dist ./dist
+RUN yarn build
 
-CMD ["node", "dist/main"]
+EXPOSE 8080/tcp
+
+CMD [ "node", "dist/main.js" ]
