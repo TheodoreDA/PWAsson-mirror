@@ -61,7 +61,7 @@ function ListItem(props) {
             <div>
                 <FaHeart style={{color: clicked ? 'red' : 'white'}} onClick={() => handleClick(props.post.uid)} /> {props.post.likes}
             </div>
-            <Link to="/post" className="linkComment" state={{ post: props.post }}><BiSolidCommentDetail /></Link>
+            <Link to={"/post?id=" + props.post.uid} className="linkComment"><BiSolidCommentDetail /></Link>
             <p>{ commentsNumber }</p>
         </div>
     </li>;

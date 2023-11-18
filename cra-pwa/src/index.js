@@ -6,7 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import { RouterProvider, createBrowserRouter, Navigate, Outlet, redirect } from 'react-router-dom';
 import Auth from './pages/Auth';
 import Feed from './pages/Feed';
-import Post from "./pages/Post";
+import Publication from "./pages/Post";
 import Messages from "./pages/Messages";
 import NewPost from "./pages/NewPost";
 import Profile from "./pages/Profile";
@@ -42,7 +42,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/post",
-        element: <Post />
+        element: <Publication />
       },
       {
         path: "/messages",
