@@ -11,9 +11,15 @@ import { messageBuilder } from 'src/builder/message.builder';
 import { Query } from 'appwrite';
 import { Models } from 'node-appwrite';
 import { chatBuilder } from 'src/builder/chat.builder';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class MessageService {
+  private readonly notificationService: NotificationService;
+  constructor(notificationService: NotificationService) {
+    this.notificationService = notificationService;
+  }
+
   async create(connectedUserUid: string, createMessageDto: CreateMessageDto) {
     let doc: Models.Document;
 
@@ -49,6 +55,7 @@ export class MessageService {
     } catch (e) {
       throw new BadRequestException('UnknownException: ' + e.message);
     }
+    this.notificationService.notifyUserOfNewMessage(chat.usersUid, message.content, message.authorUid);
 
     return messageBuilder.buildFromDoc(doc);
   }

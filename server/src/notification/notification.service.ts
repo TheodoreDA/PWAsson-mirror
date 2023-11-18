@@ -95,7 +95,7 @@ export class NotificationService {
           notification: {
             title: "New publication:" + publication.title,
             body: publication.description,
-            url: 'http://localhost:3000/feed',
+            url: process.env.CLIENT_URL + '/feed',
           }
         });
       }
@@ -123,7 +123,7 @@ export class NotificationService {
         notification: {
           title: "New like from " + user.username,
           body: "Go check it out!",
-          url: 'http://localhost:3000/post?id=' + publicationUid,
+          url: process.env.CLIENT_URL + '/post?id=' + publicationUid,
         }
       });
     } else {
@@ -131,7 +131,7 @@ export class NotificationService {
         notification: {
           title: "New dislike from " + user.username,
           body: "Go check it out!",
-          url: 'http://localhost:3000/post?id=' + publicationUid,
+          url: process.env.CLIENT_URL + '/post?id=' + publicationUid,
         }
       });
     }
@@ -151,7 +151,7 @@ export class NotificationService {
         notification: {
           title: `New like on your comment ${commentMessage}`,
           body: `like from ${user.username}! Go check it out!`,
-          url: 'http://localhost:3000/post?id=' + publicationUid,
+          url: process.env.CLIENT_URL + '/post?id=' + publicationUid,
         }
       });
     } else {
@@ -159,7 +159,7 @@ export class NotificationService {
         notification: {
           title: `New dislike on your comment ${commentMessage}`,
           body: `dislike from ${user.username}! Go check it out!`,
-          url: 'http://localhost:3000/post?id=' + publicationUid,
+          url: process.env.CLIENT_URL + '/post?id=' + publicationUid,
         }
       });
     }
@@ -182,7 +182,41 @@ export class NotificationService {
       notification: {
         title: `New comment on your post from ${commentAuthor.username}`,
         body: `Message: ${commentMessage}`,
-        url: 'http://localhost:3000/post?id=' + publicationId,
+        url: process.env.CLIENT_URL + '/post?id=' + publicationId,
+      }
+    });
+  }
+
+  async notifyUserOfNewConversation(usersid: string[]) {
+    const sender = await this.userService.findOne(usersid[1]);
+    const receiver = await this.userService.findOne(usersid[0]);
+
+    console.log("sender:" + sender.username)
+    console.log("receiver:" + receiver.username)
+    if (!receiver.isNotifAllowed) {
+      return;
+    }
+    this.sendNotification(receiver, {
+      notification: {
+        title: `New conversation with ${sender.username}`,
+        body: `Go check it out!`,
+        url: process.env.CLIENT_URL + '/messages',
+      }
+    });
+  }
+
+  async notifyUserOfNewMessage(usersid: string[], message: string, authorUid: string) {
+    const sender = await this.userService.findOne(authorUid);
+    const receiver = await this.userService.findOne(usersid.filter(uid => uid !== authorUid)[0]);
+
+    if (!receiver.isNotifAllowed) {
+      return;
+    }
+    this.sendNotification(receiver, {
+      notification: {
+        title: `New message from ${sender.username}`,
+        body: `Message: ${message}`,
+        url: process.env.CLIENT_URL + '/messages',
       }
     });
   }

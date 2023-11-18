@@ -9,7 +9,7 @@ async function bootstrap() {
   InitAppWriteClient();
 
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: process.env.CLIENT_URL,
     methods: 'GET, PATCH, POST, DELETE',
   });
 
