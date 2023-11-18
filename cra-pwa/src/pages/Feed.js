@@ -103,7 +103,7 @@ function Feed() {
                     Object.assign(tmp, { user: author });
                     tmpPostArray.push(tmp);
                 }
-                setPostArray(tmpPostArray);
+                setPostArray(tmpPostArray.reverse());
             } catch (error) {
                 alert("No feed to load");
             }
