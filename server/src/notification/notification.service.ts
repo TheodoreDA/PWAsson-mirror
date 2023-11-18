@@ -61,7 +61,7 @@ export class NotificationService {
     const payload = {
       notification: {
           title: 'Well done you subscribed to notification',
-          body: 'this is a test notification',
+          body: 'this is an Example',
       },
     };
 
@@ -95,6 +95,7 @@ export class NotificationService {
           notification: {
             title: "New publication:" + publication.title,
             body: publication.description,
+            url: 'http://localhost:3000/feed',
           }
         });
       }
@@ -107,7 +108,7 @@ export class NotificationService {
     return user.isNotifAllowed;
   }
 
-  async notifyUserOfPublicationLike(user: User, authorUid: string, status: string) {
+  async notifyUserOfPublicationLike(user: User, authorUid: string, status: string, publicationUid: string) {
     const author = await this.userService.findOne(authorUid);
 
     if (user.uid === authorUid) {
@@ -122,6 +123,7 @@ export class NotificationService {
         notification: {
           title: "New like from " + user.username,
           body: "Go check it out!",
+          url: 'http://localhost:3000/post?id=' + publicationUid,
         }
       });
     } else {
@@ -129,12 +131,13 @@ export class NotificationService {
         notification: {
           title: "New dislike from " + user.username,
           body: "Go check it out!",
+          url: 'http://localhost:3000/post?id=' + publicationUid,
         }
       });
     }
   }
 
-  async notifyUserOfCommentLike(user: User, authorUid: string, status: string, commentMessage: string) {
+  async notifyUserOfCommentLike(user: User, authorUid: string, status: string, commentMessage: string, publicationUid: string) {
     const author = await this.userService.findOne(authorUid);
 
     if (user.uid === authorUid) {
@@ -148,6 +151,7 @@ export class NotificationService {
         notification: {
           title: `New like on your comment ${commentMessage}`,
           body: `like from ${user.username}! Go check it out!`,
+          url: 'http://localhost:3000/post?id=' + publicationUid,
         }
       });
     } else {
@@ -155,6 +159,7 @@ export class NotificationService {
         notification: {
           title: `New dislike on your comment ${commentMessage}`,
           body: `dislike from ${user.username}! Go check it out!`,
+          url: 'http://localhost:3000/post?id=' + publicationUid,
         }
       });
     }
@@ -177,6 +182,7 @@ export class NotificationService {
       notification: {
         title: `New comment on your post from ${commentAuthor.username}`,
         body: `Message: ${commentMessage}`,
+        url: 'http://localhost:3000/post?id=' + publicationId,
       }
     });
   }

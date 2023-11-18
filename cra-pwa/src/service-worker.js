@@ -99,10 +99,9 @@ self.addEventListener('push', (event) => {
     body: notificationPush.body,
     icon: notificationLogo,
     vibrate: [100, 50, 100],
-    actions: [
-      {action: 'like', title: 'Like'},
-      {action: 'reply', title: 'Reply'}
-    ]
+    data: {
+      url: notificationPush.url 
+    }
   }
   event.waitUntil(
     self.registration.showNotification(notificationPush.title,
@@ -110,40 +109,34 @@ self.addEventListener('push', (event) => {
 })
 
 self.addEventListener('notificationclick', function(event) {
-  var messageId = event.notification.data;
-
   event.notification.close();
+  var messageId = event.notification.data;
+  const url = event.notification.data.url;
 
-  if (event.action === 'like') {
-    // silentlyLikeItem();
-    console.log('like');
-    event.waitUntil(
-      self.clients.matchAll({ type: 'window' }).then((clientList) => {
-          // Check if the client is currently focused on a specific page
-        for (const client of clientList) {
-          if (client.url === 'http://localhost:3000/profile') {
-            if (client.focused) {
-              return;
-            }
-            else {
-              client.navigate('http://localhost:3000/auth');
-              return client.focus();
-            }
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then((clientList) => {
+        // Check if the client is currently focused on a specific page
+      for (const client of clientList) {
+        if (client.url === 'url') {
+          if (client.focused) {
+            // There's already a window/tab open with the target URL and it's focused, let's use it
+            return;
+          }
+          else {
+            // There's already a window/tab open with the target URL but it's not focused, let's focus it
+            return client.focus();
           }
         }
-        console.log("client is not on the page"); 
-        return self.clients.openWindow('http://localhost:3000/profile');
-      })
-    )
-  }
-  else if (event.action === 'reply') {
-    console.log('reply');
-    // clients.openWindow("/messages?reply=" + messageId);
-  }
-  else {
-    console.log('reply' + messageId);
-
-    // clients.openWindow("/messages?reply=" + messageId);
-  }
+        // There is a window/tab open with the website but not the good page, let's redirect it
+        if (client.url.includes('http://localhost:3000')) {
+          client.navigate(url);
+          return client.focus();
+        }
+      }
+      // If there's no window/tab open, open one
+      console.log("client is not on the page"); 
+      return self.clients.openWindow(url);
+    })
+  )
 }, false);
 

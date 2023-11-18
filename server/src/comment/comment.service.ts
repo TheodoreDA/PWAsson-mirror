@@ -130,6 +130,7 @@ export class CommentService {
         comment.authorUid,
         'dislike',
         comment.content,
+        comment.publicationUid,
       );
     } else {
       user.commentsLikedUid.push(commentId);
@@ -139,6 +140,7 @@ export class CommentService {
         comment.authorUid,
         'dislike',
         comment.content,
+        comment.publicationUid,
       );
     }
 
