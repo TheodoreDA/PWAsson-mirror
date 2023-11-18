@@ -172,7 +172,7 @@ class Messages extends React.Component {
             var chats = [];
 
             for (let i = 0; i < responseChat.data.length; i++) {
-                const otherUserUid = responseChat.data[i].usersUid.find(u => u.uid !== this.state.me.uid);
+                const otherUserUid = responseChat.data[i].usersUid.find(u => u !== this.state.me.uid);
                 const chatMessages = await axios.get(process.env.REACT_APP_API + `/message/${responseChat.data[i]?.uid}`, {
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem("token")}`,

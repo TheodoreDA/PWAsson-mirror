@@ -21,8 +21,12 @@ function Login({ goToRegistration }) {
             localStorage.setItem("username", formJson.username);
             navigate("/feed");
         }).catch((err) => {
-            console.log(err);
-            alert("Username ou passwpord incorrect");
+            if (err.message === "Network Error")
+                alert("Un problème de connexion est survenu");
+            else if (err?.response?.data?.message !== undefined && err.response.data.message === "Could not find user with username '" + formJson.username + "'")
+                alert("Nom d'utilisateur ou mot de passe incorrecte");
+            else
+                alert("Erreur inattendue.");
         });
     }
 
@@ -57,8 +61,10 @@ function Register({ goToLogin }) {
             localStorage.setItem("username", formJson.username);
             navigate("/feed");
         }).catch((err) => {
-            console.log(err);
-            alert("User couldn't be created");
+            if (err.message === "Network Error")
+                alert("Un problème de connexion est survenu");
+            else
+                alert("Nous n'avons pas pu créer votre compte");
         });        
     }
 
