@@ -71,7 +71,7 @@ const WebPushNotifications = () => {
         const getUserWebPushNotificationAcceptance = async () => {
             try {
                 const response = await axios.get(
-                    "http://localhost:8080/user/isNotifAllowed",
+                    process.env.REACT_APP_API + "/user/isNotifAllowed",
                     {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -89,7 +89,7 @@ const WebPushNotifications = () => {
 
     const sendSubscriptionToServer = async (subscription) => {
         await axios.post(
-            "http://localhost:8080/notification/acceptNotification",
+            process.env.REACT_APP_API + "/notification/acceptNotification",
             subscription,
             {
                 headers: {
@@ -122,7 +122,7 @@ const WebPushNotifications = () => {
         console.log("remove webpush", webPushNotification)
         setWebPushNotification(false)
         axios.post(
-            "http://localhost:8080/notification/revokeNotification",
+            process.env.REACT_APP_API + "/notification/revokeNotification",
             {},
             {
                 headers: {
@@ -167,7 +167,7 @@ function Profile () {
 
     useEffect(() => {
         async function fetchData() {
-            const response = await axios.get(`http://localhost:8080/user/${userId}`);
+            const response = await axios.get(process.env.REACT_APP_API + `/user/${userId}`);
             setUsername(response.data?.username);
         }
         fetchData();

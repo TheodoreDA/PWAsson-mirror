@@ -18,7 +18,7 @@ function ListItem(props) {
         setClicked(isLiked());
 
         const getCommentsNumber = async () => {
-            const response = await axios.get(`http://localhost:8080/comment/${props.post.uid}`);
+            const response = await axios.get(process.env.REACT_APP_API + `/comment/${props.post.uid}`);
             setCommentsNumber(response.data.length);
         }
         getCommentsNumber();
@@ -34,7 +34,7 @@ function ListItem(props) {
 
     async function handleClick(feedUid) {
         try {
-            await axios.patch(`http://localhost:8080/publication/like_unlike/${feedUid}`, {}, {
+            await axios.patch(process.env.REACT_APP_API + `/publication/like_unlike/${feedUid}`, {}, {
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("token")}`,
                 }
@@ -79,11 +79,11 @@ function Feed() {
         async function fetchData() {
             try {
                 if (localStorage.getItem("username")) {
-                    const responseUsername = await axios.get(`http://localhost:8080/user/${userId}`);
+                    const responseUsername = await axios.get(process.env.REACT_APP_API + `/user/${userId}`);
                     setUsername(responseUsername.data?.username);
                     localStorage.setItem("username", responseUsername.data?.username);
                 }
-                const response = await axios.get(`http://localhost:8080/publication`);
+                const response = await axios.get(process.env.REACT_APP_API + `/publication`);
                 let tmpPostArray = [];
                 for (let i = 0; i < response.data.length; i++) {
                     let tmp = {};
@@ -96,10 +96,10 @@ function Feed() {
                             pictureUid: response.data[i]?.pictureUid,
                             likesUid: response.data[i]?.likesUid
                         });
-                    const responsePircture = await axios.get(`http://localhost:8080/publication/picture/${tmp.pictureUid}`);
+                    const responsePircture = await axios.get(process.env.REACT_APP_API + `/publication/picture/${tmp.pictureUid}`);
                     const base64String = btoa(String.fromCharCode(...new Uint8Array(responsePircture.data?.data)));
                     Object.assign(tmp, { image: base64String });
-                    const responseUser = await axios.get(`http://localhost:8080/user/${tmp.authorUid}`);
+                    const responseUser = await axios.get(process.env.REACT_APP_API + `/user/${tmp.authorUid}`);
                     const author = responseUser.data?.username;
                     Object.assign(tmp, { user: author });
                     tmpPostArray.push(tmp);

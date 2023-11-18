@@ -47,7 +47,7 @@ function Publication() {
 
     useEffect(() => {
         const getPost = async () => {
-            axios.get(`http://localhost:8080/publication/${postId}`).then((response) => {
+            axios.get(process.env.REACT_APP_API + `/publication/${postId}`).then((response) => {
                 setPost({...response.data, likesNbr: response.data.likesUid.length});
                 setIsLiked(response.data.likesUid.includes(userInfo.uid));
                 fetchData();
@@ -61,7 +61,7 @@ function Publication() {
     useEffect(() => {
         const getPostImg = async () => {
             if (!post.pictureUid) return;
-            const responsePircture = await axios.get(`http://localhost:8080/publication/picture/${post.pictureUid}`);
+            const responsePircture = await axios.get(process.env.REACT_APP_API + `/publication/picture/${post.pictureUid}`);
             const base64String = btoa(String.fromCharCode(...new Uint8Array(responsePircture.data?.data)));
             setPostImg(base64String);
         }
@@ -75,7 +75,7 @@ function Publication() {
     const commentsList = commentArray.map((comment, index) => <Comment key={"comment-" + index} comment={comment} onUpdateLike={onUpdateCommentLike} />);
 
     async function fetchData() {
-        const response = await axios.get(`http://localhost:8080/comment/${postId}`);
+        const response = await axios.get(process.env.REACT_APP_API + `/comment/${postId}`);
         let tmpCommentArray = []
         for (let i = 0; i < response.data.length; i++) {
             let tmpComment = {}
@@ -87,7 +87,7 @@ function Publication() {
                     likesUid: response.data[i]?.likesUid,
                     createdAt: response.data[i]?.createdAt,
                 });
-            const responseAuthor = await axios.get(`http://localhost:8080/user/${tmpComment.authorUid}`)
+            const responseAuthor = await axios.get(process.env.REACT_APP_API + `/user/${tmpComment.authorUid}`)
             const user = responseAuthor.data?.username;
             Object.assign(tmpComment, { user: user });
             const date = new Date(tmpComment.createdAt);
@@ -99,7 +99,7 @@ function Publication() {
     }
 
     async function onUpdateCommentLike(commentUid) {
-        await axios.patch(`http://localhost:8080/comment/like_unlike/${commentUid}`, null, {
+        await axios.patch(process.env.REACT_APP_API + `/comment/like_unlike/${commentUid}`, null, {
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`,
             }
@@ -108,7 +108,7 @@ function Publication() {
     }
 
     async function onUpdatePostLike() {
-        await axios.patch(`http://localhost:8080/publication/like_unlike/${post.uid}`, null, {
+        await axios.patch(process.env.REACT_APP_API + `/publication/like_unlike/${post.uid}`, null, {
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`,
             }
@@ -121,7 +121,7 @@ function Publication() {
 
     async function onSubmitMessage() {
         setNewComment("");
-        await axios.post(`http://localhost:8080/comment`, {
+        await axios.post(process.env.REACT_APP_API + `/comment`, {
             publicationUid: post.uid,
             content: newComment
         }, {
