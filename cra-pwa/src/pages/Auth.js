@@ -1,7 +1,7 @@
 import { useState } from "react";
 import './Auth.css';
 import axios from "axios";
-import { redirect, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function Login({ goToRegistration }) {
     const navigate = useNavigate();
@@ -11,21 +11,19 @@ function Login({ goToRegistration }) {
 
         const form = e.target;
         const formData = new FormData(form);
-
         const formJson = Object.fromEntries(formData.entries());
-        console.log(formJson);
-        try {
-            const response = await axios.post(process.env.REACT_APP_API + "/auth/login", {
-                username: formJson.username,
-                password: formJson.password
-            });
-            console.log(response.data);
-            localStorage.setItem("token", response.data);
+
+        axios.post(process.env.REACT_APP_API + "/auth/login", {
+            username: formJson.username,
+            password: formJson.password
+        }).then((res) => {
+            localStorage.setItem("token", res.data);
             localStorage.setItem("username", formJson.username);
             navigate("/feed");
-        } catch (error) {
+        }).catch((err) => {
+            console.log(err);
             alert("Username ou passwpord incorrect");
-        }
+        });
     }
 
     return (
@@ -49,23 +47,19 @@ function Register({ goToLogin }) {
 
         const form = e.target;
         const formData = new FormData(form);
-
         const formJson = Object.fromEntries(formData.entries());
-        console.log(formJson);
 
-        try {
-            const response = await axios.post(process.env.REACT_APP_API + "/auth/register", {
-                username: formJson.username,
-                password: formJson.password
-            });
-            console.log(response.data);
-            localStorage.setItem("token", response.data);
+        axios.post(process.env.REACT_APP_API + "/auth/register", {
+            username: formJson.username,
+            password: formJson.password
+        }).then((res) => {
+            localStorage.setItem("token", res.data);
             localStorage.setItem("username", formJson.username);
             navigate("/feed");
-        } catch (error) {
+        }).catch((err) => {
+            console.log(err);
             alert("User couldn't be created");
-        }
-        
+        });        
     }
 
     return (

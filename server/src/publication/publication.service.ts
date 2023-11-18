@@ -12,14 +12,15 @@ import { DB_ID, db, storage } from 'src/database/app.database';
 import { InputFile, Models } from 'node-appwrite';
 import { userBuilder } from 'src/builder/user.builder';
 import { Query } from 'appwrite';
+import { SocketService } from 'src/gateway/socket.service';
 import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class PublicationService {
-  private readonly notificationService: NotificationService;
-  constructor(notificationService: NotificationService) {
-    this.notificationService = notificationService;
-  }
+  constructor(
+    private readonly socketService: SocketService,
+    readonly notificationService: NotificationService,
+  ) {}
 
   async create(
     createPublicationDto: CreatePublicationDto,
@@ -61,6 +62,8 @@ export class PublicationService {
       }
       throw new BadRequestException('UnknownException: ' + e.message);
     }
+
+    this.socketService.emitNewPublication(publication);
     this.notificationService.notifAllUsers(publication);
     return publicationBuilder.buildFromDoc(doc);
   }
@@ -135,7 +138,7 @@ export class PublicationService {
         user,
         publication.authorUid,
         'unlike',
-        publication.uid
+        publication.uid,
       );
     } else {
       user.publicationsLikedUid.push(publicationId);
@@ -144,7 +147,7 @@ export class PublicationService {
         user,
         publication.authorUid,
         'like',
-        publication.uid
+        publication.uid,
       );
     }
 
