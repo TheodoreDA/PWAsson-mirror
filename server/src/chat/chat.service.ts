@@ -10,9 +10,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { chatBuilder } from 'src/builder/chat.builder';
 import { Query } from 'appwrite';
 import { Models } from 'node-appwrite';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class ChatService {
+  private readonly notificationService: NotificationService;
+  constructor(notificationService: NotificationService) {
+    this.notificationService = notificationService;
+  }
+
   async create(connectedUserUid: string, createChatDto: CreateChatDto) {
     let doc: Models.Document;
 
@@ -50,6 +56,10 @@ export class ChatService {
     } catch (e) {
       throw new BadRequestException('UnknownException: ' + e.message);
     }
+
+    // notify the other user that someone wants to chat with him
+    this.notificationService.notifyUserOfNewConversation(createChatDto.usersUid)
+
 
     return chatBuilder.buildFromDoc(doc);
   }
