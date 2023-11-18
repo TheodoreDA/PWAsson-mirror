@@ -9,6 +9,7 @@ import { AdminModule } from './admin/admin.module';
 import { JwtModule } from '@nestjs/jwt';
 import { MessageModule } from './message/message.module';
 import { SocketModule } from './gateway/socket.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { SocketModule } from './gateway/socket.module';
     MessageModule,
     AdminModule,
     SocketModule,
+    NotificationModule,
   ],
 })
 export class AppModule {}

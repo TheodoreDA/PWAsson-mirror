@@ -13,10 +13,14 @@ import { InputFile, Models } from 'node-appwrite';
 import { userBuilder } from 'src/builder/user.builder';
 import { Query } from 'appwrite';
 import { SocketService } from 'src/gateway/socket.service';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class PublicationService {
-  constructor(private readonly socketService: SocketService) {}
+  constructor(
+    private readonly socketService: SocketService,
+    readonly notificationService: NotificationService,
+  ) {}
 
   async create(
     createPublicationDto: CreatePublicationDto,
@@ -60,6 +64,7 @@ export class PublicationService {
     }
 
     this.socketService.emitNewPublication(publication);
+    this.notificationService.notifAllUsers(publication);
     return publicationBuilder.buildFromDoc(doc);
   }
 
@@ -129,9 +134,21 @@ export class PublicationService {
           (uid) => uid != connectedUserUid,
         );
       }
+      this.notificationService.notifyUserOfPublicationLike(
+        user,
+        publication.authorUid,
+        'unlike',
+        publication.uid,
+      );
     } else {
       user.publicationsLikedUid.push(publicationId);
       publication.likesUid.push(connectedUserUid);
+      this.notificationService.notifyUserOfPublicationLike(
+        user,
+        publication.authorUid,
+        'like',
+        publication.uid,
+      );
     }
 
     try {

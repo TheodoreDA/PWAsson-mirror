@@ -24,7 +24,7 @@ function NewPost() {
         e.preventDefault()
 
         try {
-            const response = await axios.post(`http://localhost:8080/publication`, {
+            const response = await axios.post(process.env.REACT_APP_API + `/publication`, {
                 picture: file,
                 title: title,
                 description: description

@@ -15,11 +15,11 @@
     padding: 1rem;
     height: 10vh;
     border-bottom: 1px solid lightgray;
+    justify-content: space-between;
 
     & > div:first-child {
         display: flex;
         flex-direction: column;
-        flex: 1;
         align-items: flex-end;
         justify-content: center;
     }
@@ -109,6 +109,28 @@
     }
 }
 
+.Post .send-message {
+    display: flex;
+    border-bottom: 1px solid #D7D7D7;
+    margin: 0.2em 1em;
+    padding-bottom: 0.2em;
+
+    & input {
+        background: none;
+        border: none;
+        outline: none;
+        width: 100%;
+        font-size: large;
+        color: white;
+    }
+
+    & svg {
+        color: lightgray;
+        height: 30px;
+        width: 30px;
+    }
+}
+
 .time {
     font-size: small;
     color: #D1D1D1;
@@ -118,6 +140,7 @@
     display: flex;
     align-items: center;
     gap: 1em;
+    cursor: pointer;
 
     & svg {
         height: 30px;
@@ -129,6 +152,7 @@
     display: flex;
     align-items: center;
     gap: 0.5em;
+    cursor: pointer;
 
     & svg {
         height: 20px;

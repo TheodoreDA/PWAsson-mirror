@@ -12,6 +12,7 @@ import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
 import { StaleWhileRevalidate } from 'workbox-strategies';
+import notificationLogo from "./assets/instagram-64.png"
 
 clientsClaim();
 
@@ -20,6 +21,13 @@ clientsClaim();
 // This variable must be present somewhere in your service worker file,
 // even if you decide not to use precaching. See https://cra.link/PWA
 precacheAndRoute(self.__WB_MANIFEST);
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    // A new Service Worker has become active, indicating an update
+    window.location.reload();
+  });
+}
 
 // Set up App Shell-style routing, so that all navigation requests
 // are fulfilled with your index.html shell. Learn more at
@@ -61,8 +69,55 @@ registerRoute(
   })
 );
 
-// This allows the web app to trigger skipWaiting via
-// registration.waiting.postMessage({type: 'SKIP_WAITING'})
+const version = 'v0';
+const cacheName = `my-app-cache-${version}`;
+
+self.addEventListener('install', (event) => {
+  // event.waitUntil(
+  //   caches.open(cacheName).then((cache) => {
+  //     // Cache resources
+  //   })
+  // );
+
+  // Skip waiting and activate the new service worker
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  // event.waitUntil(
+  //   caches.keys().then((cacheNames) => {
+  //     return Promise.all(
+  //       cacheNames.map((cache) => {
+  //         if (cache !== cacheName) {
+  //           return caches.delete(cache);
+  //         }
+  //       })
+  //     );
+  //   })
+  // );
+  // self.clients.claim();
+});
+
+self.addEventListener('fetch', (event) => {
+  // event.respondWith(
+  //   caches.match(event.request).then((response) => {
+  //     // If the resource is in the cache, return it
+  //     if (response) {
+  //       return response;
+  //     }
+
+  //     // If the resource is not in the cache, fetch it
+  //     return fetch(event.request);
+  //   })
+  // );
+});
+
+self.addEventListener('controllerchange', () => {
+  // Reload the page or perform other actions
+  window.location.reload();
+});
+
+
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
@@ -71,24 +126,52 @@ self.addEventListener('message', (event) => {
 
 // Any other custom service worker logic can go here.
 self.addEventListener('push', (event) => {
-  let body
-  if (event.data) {
-    //You can set an original message by passing it on the event.
-    body = event.data.text()
-  } else {
-    body = 'Default body'
-  }
+  console.log("got push notification");
+  const notificationPush = JSON.parse(event.data.text()).notification
+  console.log("notificationPush:", notificationPush)
  
-  const options = {
-    body: body,
-    icon: '/your icon image',
+  const options = {  
+    body: notificationPush.body,
+    icon: notificationLogo,
     vibrate: [100, 50, 100],
     data: {
-      dateOfArrival: Date.now(),
-      primaryKey: 1,
-    },
+      url: notificationPush.url 
+    }
   }
   event.waitUntil(
-    self.registration.showNotification('My insta notification',
+    self.registration.showNotification(notificationPush.title,
     options))
 })
+
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+  var messageId = event.notification.data;
+  const url = event.notification.data.url;
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then((clientList) => {
+        // Check if the client is currently focused on a specific page
+      for (const client of clientList) {
+        if (client.url === 'url') {
+          if (client.focused) {
+            // There's already a window/tab open with the target URL and it's focused, let's use it
+            return;
+          }
+          else {
+            // There's already a window/tab open with the target URL but it's not focused, let's focus it
+            return client.focus();
+          }
+        }
+        // There is a window/tab open with the website but not the good page, let's redirect it
+        if (client.url.includes('http://localhost:3000')) {
+          client.navigate(url);
+          return client.focus();
+        }
+      }
+      // If there's no window/tab open, open one
+      console.log("client is not on the page"); 
+      return self.clients.openWindow(url);
+    })
+  )
+}, false);
+

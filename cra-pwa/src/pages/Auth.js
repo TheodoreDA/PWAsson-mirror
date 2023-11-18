@@ -15,12 +15,13 @@ function Login({ goToRegistration }) {
         const formJson = Object.fromEntries(formData.entries());
         console.log(formJson);
         try {
-            const response = await axios.post("http://localhost:8080/auth/login", {
+            const response = await axios.post(process.env.REACT_APP_API + "/auth/login", {
                 username: formJson.username,
                 password: formJson.password
             });
             console.log(response.data);
             localStorage.setItem("token", response.data);
+            localStorage.setItem("username", formJson.username);
             navigate("/feed");
         } catch (error) {
             alert("Username ou passwpord incorrect");
@@ -53,12 +54,13 @@ function Register({ goToLogin }) {
         console.log(formJson);
 
         try {
-            const response = await axios.post("http://localhost:8080/auth/register", {
+            const response = await axios.post(process.env.REACT_APP_API + "/auth/register", {
                 username: formJson.username,
                 password: formJson.password
             });
             console.log(response.data);
             localStorage.setItem("token", response.data);
+            localStorage.setItem("username", formJson.username);
             navigate("/feed");
         } catch (error) {
             alert("User couldn't be created");

@@ -61,9 +61,10 @@ export class UserService {
 
   async findOne(userId: string): Promise<User> {
     let doc: Models.Document;
-
+    
     try {
       doc = await db.getDocument(DB_ID, 'USERS', userId);
+
     } catch (e) {
       throw new NotFoundException(e.message);
     }
@@ -119,5 +120,24 @@ export class UserService {
     } catch (e) {
       throw new NotFoundException(e.message);
     }
+  }
+
+  async getAllUserNotificationAllowed(): Promise<User[]> {
+    let docs: Models.DocumentList<Models.Document>;
+
+    try {
+      docs = await db.listDocuments(DB_ID, 'USERS', [
+        Query.equal('isNotifAllowed', true),
+      ]);
+    } catch (e) {
+      throw new BadRequestException('UnknownException: ' + e.message);
+    }
+
+    return userBuilder.buildFromDocs(docs);
+  }
+
+  async isNotifAllowed(userId: string): Promise<boolean> {
+    const user = await this.findOne(userId);
+    return user.isNotifAllowed;
   }
 }

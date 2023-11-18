@@ -40,6 +40,13 @@ export class UserController {
     return await this.userService.create(createUserDto);
   }
 
+  @ApiBearerAuth()
+  @UseInterceptors(AccessTokenInterceptor)
+  @Get('/isNotifAllowed/')
+  async isNotifAllowed(@Body('payload') payload: Payload): Promise<boolean> {
+    return await this.userService.isNotifAllowed(payload.uid);
+  }
+
   @ApiOkResponse({
     type: User,
     isArray: true,
