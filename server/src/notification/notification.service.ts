@@ -106,4 +106,32 @@ export class NotificationService {
 
     return user.isNotifAllowed;
   }
+
+  async notifyUserOfPublicationLike(user: User, authorUid: string, status: string) {
+    const author = await this.userService.findOne(authorUid);
+
+    if (user.uid === authorUid) {
+      return;
+    }
+    if (!author.isNotifAllowed) {
+      return;
+    }
+
+    console.log('sending notification to:', author.username);
+    if (status === 'like') {
+      this.sendNotification(author, {
+        notification: {
+          title: "New like from " + user.username,
+          body: "Go check it out!",
+        }
+      });
+    } else {
+      this.sendNotification(author, {
+        notification: {
+          title: "New dislike from " + user.username,
+          body: "Go check it out!",
+        }
+      });
+    }
+  }
 }

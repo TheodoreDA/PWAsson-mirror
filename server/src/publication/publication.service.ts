@@ -131,9 +131,19 @@ export class PublicationService {
           (uid) => uid != connectedUserUid,
         );
       }
+      this.notificationService.notifyUserOfPublicationLike(
+        user,
+        publication.authorUid,
+        'unlike',
+      );
     } else {
       user.publicationsLikedUid.push(publicationId);
       publication.likesUid.push(connectedUserUid);
+      this.notificationService.notifyUserOfPublicationLike(
+        user,
+        publication.authorUid,
+        'like',
+      );
     }
 
     try {
