@@ -5,6 +5,7 @@ import { UserService } from 'src/user/user.service';
 import { DB_ID, db } from 'src/database/app.database';
 import { Publication } from 'src/publication/entities/publication.entity';
 import { User } from 'src/user/entities/user.entity';
+import { commentBuilder } from 'src/builder/comment.builder';
 
 const webpush = require('web-push');
 
@@ -25,8 +26,6 @@ export class NotificationService {
     } catch (e) {
       console.log("couldn't set vapid details");
     }
-
-    try {
       webpush.sendNotification(
         {
           endpoint: user.endpoint,
@@ -37,10 +36,11 @@ export class NotificationService {
           },
         },
         JSON.stringify(payload),
-      );
-    } catch (e) {
-      console.log('Could not send notification to: ', user.username);
-    }
+      ).then((result) => {
+        console.log("result: ", result)
+      }).catch((err) => {
+        console.log("error: ", err)
+      });
   }
 
   async acceptNotification(acceptNotificationDto: AcceptNotificationDto, uid: string) {
@@ -117,7 +117,6 @@ export class NotificationService {
       return;
     }
 
-    console.log('sending notification to:', author.username);
     if (status === 'like') {
       this.sendNotification(author, {
         notification: {
@@ -133,5 +132,52 @@ export class NotificationService {
         }
       });
     }
+  }
+
+  async notifyUserOfCommentLike(user: User, authorUid: string, status: string, commentMessage: string) {
+    const author = await this.userService.findOne(authorUid);
+
+    if (user.uid === authorUid) {
+      return;
+    }
+    if (!author.isNotifAllowed) {
+      return;
+    }
+    if (status === 'like') {
+      this.sendNotification(author, {
+        notification: {
+          title: `New like on your comment ${commentMessage}`,
+          body: `like from ${user.username}! Go check it out!`,
+        }
+      });
+    } else {
+      this.sendNotification(author, {
+        notification: {
+          title: `New dislike on your comment ${commentMessage}`,
+          body: `dislike from ${user.username}! Go check it out!`,
+        }
+      });
+    }
+  }
+
+  async notifyUserOfComment(commentAuthorUid: string, publicationId: string, commentMessage: string) {
+    const commentAuthor = await this.userService.findOne(commentAuthorUid);
+    const doc = await db.getDocument(DB_ID, 'PUBLICATIONS', publicationId);
+    const publication = commentBuilder.buildFromDoc(doc);
+    const publicationAuthor = await this.userService.findOne(publication.authorUid);
+
+    if (commentAuthorUid === publicationAuthor.uid) {
+      return;
+    }
+    console.log("before if 2")
+    if (!publicationAuthor.isNotifAllowed) {
+      return;
+    }
+    this.sendNotification(publicationAuthor, {
+      notification: {
+        title: `New comment on your post from ${commentAuthor.username}`,
+        body: `Message: ${commentMessage}`,
+      }
+    });
   }
 }
