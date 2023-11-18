@@ -11,7 +11,7 @@ import { SocketService } from './socket.service';
 import { Message } from 'src/message/entities/message.entity';
 import { Chat } from 'src/chat/entities/chat.entity';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: { origin: process.env.CLIENT_URL } })
 export class SocketGateway implements OnGatewayConnection {
   @WebSocketServer()
   private server: Socket;
@@ -24,7 +24,6 @@ export class SocketGateway implements OnGatewayConnection {
 
   @SubscribeMessage('new-message')
   onNewMessage(
-    @MessageBody() body: any,
     @MessageBody('chat') chat: Chat,
     @MessageBody('message') message: Message,
     @ConnectedSocket() client: Socket,
