@@ -61,7 +61,7 @@ function ListItem(props) {
             <div>
                 <FaHeart style={{color: clicked ? 'red' : 'white'}} onClick={() => handleClick(props.post.uid)} /> {props.post.likes}
             </div>
-            <Link to="/post" className="linkComment" state={{ post: props.post }}><BiSolidCommentDetail /></Link>
+            <Link to={"/post?id=" + props.post.uid} className="linkComment"><BiSolidCommentDetail /></Link>
             <p>{ commentsNumber }</p>
         </div>
     </li>;
@@ -104,7 +104,8 @@ function Feed() {
                     Object.assign(tmp, { user: author });
                     tmpPostArray.push(tmp);
                 }
-                setPostArray(tmpPostArray);
+                setPostArray(tmpPostArray.reverse());
+
                 setIsFetching(false);
             } catch (error) {
                 alert("No feed to load");

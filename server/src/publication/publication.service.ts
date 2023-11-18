@@ -135,6 +135,7 @@ export class PublicationService {
         user,
         publication.authorUid,
         'unlike',
+        publication.uid
       );
     } else {
       user.publicationsLikedUid.push(publicationId);
@@ -143,6 +144,7 @@ export class PublicationService {
         user,
         publication.authorUid,
         'like',
+        publication.uid
       );
     }
 

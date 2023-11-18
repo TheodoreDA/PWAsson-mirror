@@ -8,6 +8,7 @@ import { BiWifi, BiWifiOff } from "react-icons/bi";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 function Comment(props) {
     const userInfo = jwtDecode(localStorage.getItem('token'));
@@ -21,10 +22,18 @@ function Comment(props) {
     </li>;
 }
 
-function Post() {
+function Publication() {
     let { state } = useLocation()
     const [commentArray, setCommentArray] = useState([]);
     const [newComment, setNewComment] = useState("");
+    const [post, setPost] = useState({});
+    const [postImg, setPostImg] = useState(null);
+    const [isLiked, setIsLiked] = useState(false);
+
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    const postId = urlSearchParams.get('id');
+    const navigate = useNavigate();
+
     const options = {
         year: 'numeric',
         month: 'long',
@@ -37,15 +46,36 @@ function Post() {
     const userInfo = jwtDecode(localStorage.getItem('token'));
 
     useEffect(() => {
-        fetchData();
+        const getPost = async () => {
+            axios.get(`http://localhost:8080/publication/${postId}`).then((response) => {
+                setPost({...response.data, likesNbr: response.data.likesUid.length});
+                setIsLiked(response.data.likesUid.includes(userInfo.uid));
+                fetchData();
+            }).catch((error) => {
+                navigate("/feed");
+            });
+        }
+        getPost();        
     }, [])
 
-    const post = { id: state.post.uid, user: state.post.user, title: state.post.title, img: state.post.image, commentsNbr: commentArray.length, likesNbr: state.post.likesUid.length };
+    useEffect(() => {
+        const getPostImg = async () => {
+            if (!post.pictureUid) return;
+            const responsePircture = await axios.get(`http://localhost:8080/publication/picture/${post.pictureUid}`);
+            const base64String = btoa(String.fromCharCode(...new Uint8Array(responsePircture.data?.data)));
+            setPostImg(base64String);
+        }
+        getPostImg();
+    }, [post])
+
+    useEffect(() => {
+        setPost({...post, commentsNbr: commentArray.length})
+    }, [commentArray])
 
     const commentsList = commentArray.map((comment, index) => <Comment key={"comment-" + index} comment={comment} onUpdateLike={onUpdateCommentLike} />);
 
     async function fetchData() {
-        const response = await axios.get(`http://localhost:8080/comment/${state.post.uid}`);
+        const response = await axios.get(`http://localhost:8080/comment/${postId}`);
         let tmpCommentArray = []
         for (let i = 0; i < response.data.length; i++) {
             let tmpComment = {}
@@ -78,21 +108,21 @@ function Post() {
     }
 
     async function onUpdatePostLike() {
-        // TODO Doesn't work for some reason
-        console.log("state.post.uid", state.post.uid);
-        const res = await axios.patch(`http://localhost:8080/publication/like_unlike/${state.post.uid}`, null, {
+        await axios.patch(`http://localhost:8080/publication/like_unlike/${post.uid}`, null, {
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`,
             }
+        }).catch((error) => {
+            console.log(error);
+            return;
         });
-        console.log("res", res);
-        fetchData();
+        setIsLiked(!isLiked);
     }
 
     async function onSubmitMessage() {
         setNewComment("");
         await axios.post(`http://localhost:8080/comment`, {
-            publicationUid: state.post.uid,
+            publicationUid: post.uid,
             content: newComment
         }, {
             headers: {
@@ -103,44 +133,53 @@ function Post() {
     }
 
     return (
-        <div className="Post">
-            <div className="header">
-                <div><Link to="/feed" className="return-cursor"><IoMdArrowBack />Retour</Link></div>
-                <div>
-                    { navigator.onLine ? <span>En ligne <BiWifi /></span> : <span>Hors ligne <BiWifiOff /></span> }
-                    <h1>{ post.title }</h1>
-                </div>
-                <Link to="/profile" className="username cursor-pointer">{localStorage.getItem("username")}</Link>
-            </div>
-            <div className="body">
-                <div className="post">
-                    <div>
-                        <p>{post.user}</p>
-                        {/* <p className="time">{post.time}</p> */}
-                        <div className="social"><BiSolidCommentDetail /> {post.commentsNbr}</div>
-                        <div className="social"><FaHeart
-                            style={{ color: state.post.likesUid.includes(userInfo.uid) ? 'red' : 'white' }}
-                            onClick={() => onUpdatePostLike()}
-                        /> {post.likesNbr}</div>
+        <>
+        { post.likesUid ? 
+            <>
+                <div className="Post">
+                    <div className="header">
+                        <div><Link to="/feed" className="return-cursor"><IoMdArrowBack />Retour</Link></div>
+                        <div>
+                            { navigator.onLine ? <span>En ligne <BiWifi /></span> : <span>Hors ligne <BiWifiOff /></span> }
+                            <h1>{ post.title }</h1>
+                        </div>
+                        <Link to="/profile" className="username cursor-pointer">{localStorage.getItem("username")}</Link>
                     </div>
-                    <img src={`data:image/png;base64,${post.img}`} alt={post.title} />
+                    <div className="body">
+                        <div className="post">
+                            <div>
+                                <p>{post.user}</p>
+                                {/* <p className="time">{post.time}</p> */}
+                                <div className="social"><BiSolidCommentDetail /> {post.commentsNbr}</div>
+                                <div className="social"><FaHeart
+                                    style={{ color: isLiked ? 'red' : 'white' }}
+                                    onClick={() => onUpdatePostLike()}
+                                /> {post.likesNbr}</div>
+                            </div>
+                            <img src={`data:image/png;base64,${postImg}`} alt={post.title} />
+                        </div>
+                        <ul>{commentsList}</ul>
+                        <div className="send-message">
+                        <input
+                            placeholder="Mon message..."
+                            value={newComment}
+                            onChange={e => setNewComment(e.target.value)}
+                            onKeyUp={e => {
+                                if (e.key === "Enter")
+                                    onSubmitMessage();
+                            }}
+                        />
+                        <IoSend className="cursor-pointer" onClick={() => this.onSubmitMessage()} />
+                    </div>
                 </div>
-                <ul>{commentsList}</ul>
-                <div className="send-message">
-                <input
-                    placeholder="Mon message..."
-                    value={newComment}
-                    onChange={e => setNewComment(e.target.value)}
-                    onKeyUp={e => {
-                        if (e.key === "Enter")
-                            onSubmitMessage();
-                    }}
-                />
-                <IoSend className="cursor-pointer" onClick={() => this.onSubmitMessage()} />
             </div>
-            </div>
-        </div>
+        </>
+            : <>
+            </>
+        }
+        </>
+
     );
 }
 
-export default Post;
+export default Publication;
